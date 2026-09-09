@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { StoreContext } from '../context/StoreContext';
+import { StoreContext } from '../context/StoreContextContext';
 import { User, Package, Truck, CreditCard, ChevronDown, ChevronUp, CheckCircle, Clock, MapPin } from 'lucide-react';
+import { getMyOrders } from '../api/orderApi';
 
 const OrderSkeleton = () => (
   <div className="glass p-5 rounded-2xl animate-pulse space-y-4">
@@ -150,7 +151,7 @@ const OrderCard = ({ order, index, user }) => {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, setUser } = useContext(StoreContext);
+  const { user } = useContext(StoreContext);
   
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -165,21 +166,7 @@ export default function ProfilePage() {
     const fetchMyOrders = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
-        
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/myorders`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || `Server returned ${response.status}`);
-        }
+        const data = await getMyOrders();
 
         if (Array.isArray(data)) {
           setOrders(data);

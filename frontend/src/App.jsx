@@ -1,6 +1,7 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
-import { StoreProvider, StoreContext } from './context/StoreContext';
+import { StoreProvider } from './context/StoreContext';
+import { StoreContext } from './context/StoreContextContext';
 import Navbar from './components/Navbar';
 
 import HomePage from './pages/HomePage';

@@ -18,6 +18,10 @@ const sendEmail = async (options) => {
       html: options.html,
     });
 
+    if (data.error) {
+      throw new Error(data.error.message || 'Email provider rejected the message.');
+    }
+
     console.log("----------------------------------------");
     console.log("📧 EMAIL SENT SUCCESSFULLY VIA RESEND!");
     console.log(`To: ${options.email}`);

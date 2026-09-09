@@ -1,6 +1,6 @@
-import React, { useContext, useState } from 'react';
-import { StoreContext } from '../../context/StoreContext';
-import { X, Package, Truck, CreditCard, ShoppingCart, DollarSign, Clock } from 'lucide-react';
+import { useContext, useState } from 'react';
+import { StoreContext } from '../../context/StoreContextContext';
+import { X, Package, Truck, CreditCard, ShoppingCart, Clock } from 'lucide-react';
 
 export default function AdminOrders() {
   const { orders = [], updateOrderStatus } = useContext(StoreContext);

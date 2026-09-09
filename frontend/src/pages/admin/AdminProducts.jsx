@@ -1,7 +1,7 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { StoreContext } from '../../context/StoreContext'; 
-import { Plus, Edit2, Trash2, Box, DollarSign, AlertCircle, Search } from 'lucide-react';
+import { StoreContext } from '../../context/StoreContextContext';
+import { Plus, Edit2, Trash2, Box, AlertCircle, Search } from 'lucide-react';
 
 export default function AdminProducts() {
   const { products, addProduct, deleteProduct, updateProduct } = useContext(StoreContext);

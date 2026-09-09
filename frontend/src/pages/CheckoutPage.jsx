@@ -1,11 +1,12 @@
-import React, { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Truck, CreditCard, ShieldCheck } from 'lucide-react';
-import { StoreContext } from '../context/StoreContext';
+import { StoreContext } from '../context/StoreContextContext';
+import { createOrder } from '../api/orderApi';
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
-  const { cartItems, cartTotal, user, showToast, setCartItems, discount } = useContext(StoreContext);
+  const { cartItems, cartTotal, user, showToast, clearCart, discount, appliedCoupon } = useContext(StoreContext);
 
   // If the user isn't logged in, send them to the login page
   useEffect(() => {
@@ -22,7 +23,7 @@ export default function CheckoutPage() {
     country: ''
   });
 
-  const [paymentMethod, setPaymentMethod] = useState('Credit Card');
+  const [paymentMethod, setPaymentMethod] = useState('Cash on Delivery');
   const [processingPayment, setProcessingPayment] = useState(false);
 
   const handleChange = (e) => {
@@ -38,53 +39,26 @@ export default function CheckoutPage() {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No token found, please log in again.');
 
-      // Format cart items to match the Mongoose OrderModel exactly
+      // Send only identifiers and quantities; the server loads trusted product data.
       const formattedOrderItems = cartItems.map((item) => ({
-        name: item.name,
         qty: item.qty,
-        image: item.image,
-        price: item.price,
-        product: item._id || item.id // Backend expects 'product' to be the ID
+        product: item._id || item.id
       }));
-
-      // 2. Prepare the order data matching our backend Model
-      const discountAmount = (cartTotal * (discount || 0)) / 100;
-      const subtotalAfterDiscount = cartTotal - discountAmount;
-      const calculatedTax = Number((0.08 * subtotalAfterDiscount).toFixed(2));
-      const calculatedTotal = subtotalAfterDiscount + 10.00 + calculatedTax;
 
       const orderData = {
         orderItems: formattedOrderItems,
         shippingAddress,
         paymentMethod,
-        taxPrice: calculatedTax,
-        shippingPrice: 10.00,
-        totalPrice: calculatedTotal
+        couponCode: appliedCoupon?.code || undefined,
       };
 
-      // Simulate a payment gateway processing delay (2 seconds)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
       // 3. Send the POST request to the Express backend
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // The Auth Middleware checks this!
-        },
-        body: JSON.stringify(orderData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to place order');
-      }
+      await createOrder(orderData);
 
       if (showToast) showToast('Order placed successfully! 🎉');
       
       // 4. Empty the cart and redirect to home
-      setCartItems([]);
+      clearCart();
       navigate('/');
     } catch (error) {
       console.error('Checkout Error:', error);
@@ -124,8 +98,8 @@ export default function CheckoutPage() {
               <div className="w-16 h-16 border-4 border-brand-500/30 border-t-brand-400 rounded-full animate-spin"></div>
               <div className="absolute inset-0 bg-brand-400/20 blur-xl rounded-full"></div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-100 mb-2">Processing Payment</h3>
-            <p className="text-gray-400 text-center text-sm">Please do not close this window. Securely connecting to dummy payment gateway...</p>
+            <h3 className="text-2xl font-bold text-gray-100 mb-2">Placing Order</h3>
+            <p className="text-gray-400 text-center text-sm">The server is verifying prices, coupon eligibility, and stock.</p>
           </div>
         </div>
       )}
@@ -207,27 +181,27 @@ export default function CheckoutPage() {
               Payment Method
             </h2>
             <div className="space-y-3">
-              <label className={`flex items-center p-4 rounded-xl cursor-pointer transition-all duration-300 ${paymentMethod === 'Credit Card' ? 'glass-strong border-brand-500/30 shadow-lg shadow-brand-500/5' : 'glass hover:bg-white/[0.06]'}`}>
+              <label className={`flex items-center p-4 rounded-xl cursor-pointer transition-all duration-300 ${paymentMethod === 'Cash on Delivery' ? 'glass-strong border-brand-500/30 shadow-lg shadow-brand-500/5' : 'glass hover:bg-white/[0.06]'}`}>
                 <input 
                   type="radio" 
                   name="payment" 
-                  value="Credit Card" 
-                  checked={paymentMethod === 'Credit Card'} 
+                  value="Cash on Delivery"
+                  checked={paymentMethod === 'Cash on Delivery'}
                   onChange={(e) => setPaymentMethod(e.target.value)} 
                   className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-600 bg-gray-800" 
                 />
-                <span className="ml-3 font-medium text-gray-200">Credit Card / Debit Card</span>
+                <span className="ml-3 font-medium text-gray-200">Cash on Delivery</span>
               </label>
-              <label className={`flex items-center p-4 rounded-xl cursor-pointer transition-all duration-300 ${paymentMethod === 'PayPal' ? 'glass-strong border-brand-500/30 shadow-lg shadow-brand-500/5' : 'glass hover:bg-white/[0.06]'}`}>
+              <label className={`flex items-center p-4 rounded-xl cursor-pointer transition-all duration-300 ${paymentMethod === 'Online Payment' ? 'glass-strong border-brand-500/30 shadow-lg shadow-brand-500/5' : 'glass hover:bg-white/[0.06]'}`}>
                 <input 
                   type="radio" 
                   name="payment" 
-                  value="PayPal" 
-                  checked={paymentMethod === 'PayPal'} 
+                  value="Online Payment"
+                  checked={paymentMethod === 'Online Payment'}
                   onChange={(e) => setPaymentMethod(e.target.value)} 
                   className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-600 bg-gray-800" 
                 />
-                <span className="ml-3 font-medium text-gray-200">PayPal</span>
+                <span className="ml-3 font-medium text-gray-200">Online Payment (pending confirmation)</span>
               </label>
             </div>
           </div>

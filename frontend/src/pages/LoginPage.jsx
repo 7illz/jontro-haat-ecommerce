@@ -1,12 +1,14 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { StoreContext } from '../context/StoreContext';
+import { StoreContext } from '../context/StoreContextContext';
 import { useGoogleLogin } from '@react-oauth/google';
+import { login, register, googleLogin } from '../api/authApi';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setUser, showToast } = useContext(StoreContext);
+  const googleLoginEnabled = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
   const redirect = location.search ? location.search.split('=')[1] : '/';
 
@@ -30,20 +32,8 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
 
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
-      }
+      const data = await (isLogin ? login(formData) : register(formData));
 
       localStorage.setItem('token', data.token);
       setUser({
@@ -65,17 +55,7 @@ export default function LoginPage() {
     onSuccess: async (tokenResponse) => {
       try {
         // Send the Google access token to your backend to verify and create a JWT
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/google`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ accessToken: tokenResponse.access_token }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || 'Google login failed');
-        }
+        const data = await googleLogin(tokenResponse.access_token);
 
         // Store standard JWT from YOUR backend (not Google's)
         localStorage.setItem('token', data.token);
@@ -194,8 +174,10 @@ export default function LoginPage() {
             <div className="mt-6">
               <button 
                 type="button"
-                onClick={() => handleGoogleLogin()} 
-                className="relative z-10 w-full flex items-center justify-center space-x-2 glass hover:bg-white/8 text-gray-300 font-medium py-3 rounded-xl transition-all duration-300 cursor-pointer"
+                onClick={() => handleGoogleLogin()}
+                disabled={!googleLoginEnabled}
+                title={googleLoginEnabled ? 'Sign in with Google' : 'Set VITE_GOOGLE_CLIENT_ID to enable Google login'}
+                className="relative z-10 w-full flex items-center justify-center space-x-2 glass hover:bg-white/8 text-gray-300 font-medium py-3 rounded-xl transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {/* Google "G" Logo SVG */}
                 <svg className="h-5 w-5" viewBox="0 0 24 24">

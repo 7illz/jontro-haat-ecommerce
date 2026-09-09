@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { applyCoupon, setupTestCoupon } = require('../controllers/couponController');
+const { applyCoupon } = require('../controllers/couponController');
+const { validateCoupon } = require('../middleware/validationMiddleware');
 
-router.post('/apply', applyCoupon);
-router.get('/setup', setupTestCoupon); // We will use this to generate our first coupon!
+router.post('/apply', validateCoupon, applyCoupon);
 
 module.exports = router;

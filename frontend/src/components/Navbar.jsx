@@ -1,8 +1,8 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 // 1. Added LogOut and Menu/X to your lucide-react imports
 import { ShoppingCart, Search, User, Package, MapPin, LogOut, Menu, X } from 'lucide-react';
-import { StoreContext } from '../context/StoreContext';
+import { StoreContext } from '../context/StoreContextContext';
 
 export default function Navbar() {
   // 2. Pulled in logout from Context

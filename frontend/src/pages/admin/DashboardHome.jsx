@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
-import { StoreContext } from '../../context/StoreContext';
-import { TrendingUp, ShoppingBag, PackageX, AlertTriangle, ArrowRight, ArrowUpRight, ArrowDownRight, Package } from 'lucide-react';
+import { useContext } from 'react';
+import { StoreContext } from '../../context/StoreContextContext';
+import { TrendingUp, ShoppingBag, PackageX, ArrowRight, ArrowUpRight, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 
@@ -21,7 +21,6 @@ export default function DashboardHome() {
   const pendingDeliveries = safeOrders.filter(order => !order.isDelivered).length;
   
   // Find products that have less than 5 items in stock
-  const lowStockProducts = safeProducts.filter(product => product.countInStock < 5).length;
 
   // --- MOCK HISTORICAL DATA FOR CHARTS ---
   // Revenue over last 7 days (Mocked based on current total to look realistic)

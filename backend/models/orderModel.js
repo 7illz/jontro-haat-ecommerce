@@ -9,9 +9,9 @@ const orderSchema = new mongoose.Schema(
     orderItems: [
       {
         name: { type: String, required: true },
-        qty: { type: Number, required: true },
+        qty: { type: Number, required: true, min: 1, max: 100, validate: Number.isInteger },
         image: { type: String, required: true },
-        price: { type: Number, required: true },
+        price: { type: Number, required: true, min: 0 },
         product: {
           type: mongoose.Schema.Types.ObjectId,
           required: true,
@@ -22,17 +22,20 @@ const orderSchema = new mongoose.Schema(
     
     // Where is it going?
     shippingAddress: {
-      address: { type: String, required: true },
-      city: { type: String, required: true },
-      postalCode: { type: String, required: true },
-      country: { type: String, required: true },
+      address: { type: String, required: true, trim: true, maxlength: 200 },
+      city: { type: String, required: true, trim: true, maxlength: 200 },
+      postalCode: { type: String, required: true, trim: true, maxlength: 200 },
+      country: { type: String, required: true, trim: true, maxlength: 200 },
     },
     
     // Payment and Pricing Details
-    paymentMethod: { type: String, required: true },
-    taxPrice: { type: Number, required: true, default: 0.0 },
-    shippingPrice: { type: Number, required: true, default: 0.0 },
-    totalPrice: { type: Number, required: true, default: 0.0 },
+    paymentMethod: { type: String, required: true, enum: ['Cash on Delivery', 'Online Payment'] },
+    itemsPrice: { type: Number, required: true, default: 0.0, min: 0 },
+    discountPrice: { type: Number, required: true, default: 0.0, min: 0 },
+    couponCode: { type: String, default: null },
+    taxPrice: { type: Number, required: true, default: 0.0, min: 0 },
+    shippingPrice: { type: Number, required: true, default: 0.0, min: 0 },
+    totalPrice: { type: Number, required: true, default: 0.0, min: 0 },
     
     // Status tracking
     isPaid: { type: Boolean, required: true, default: false },

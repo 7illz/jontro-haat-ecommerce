@@ -1,21 +1,32 @@
-import React, { createContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { StoreContext } from './StoreContextContext';
+import { listProducts, createProduct as createProductRequest, deleteProduct as deleteProductRequest, updateProduct as updateProductRequest } from '../api/productApi';
+import { getAllOrders, markOrderDelivered } from '../api/orderApi';
 
-export const StoreContext = createContext();
+const readStoredJson = (key, fallback) => {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    localStorage.removeItem(key);
+    return fallback;
+  }
+};
 
 export const StoreProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
+    return readStoredJson('user', null);
   });
 
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => readStoredJson('cartItems', []));
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState(null);
   
-  const [discount, setDiscount] = useState(() => {
-    const saved = localStorage.getItem('cartDiscount');
-    return saved ? Number(saved) : 0;
+  const [appliedCoupon, setAppliedCoupon] = useState(() => {
+    const storedCart = readStoredJson('cartItems', []);
+    return storedCart.length ? readStoredJson('appliedCoupon', null) : null;
   });
+  const discount = Number(appliedCoupon?.discountPercentage || 0);
   
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -29,15 +40,17 @@ export const StoreProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    localStorage.setItem('cartDiscount', discount.toString());
-  }, [discount]);
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+  }, [cartItems]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch products");
-        return res.json();
-      })
+    if (appliedCoupon) localStorage.setItem('appliedCoupon', JSON.stringify(appliedCoupon));
+    else localStorage.removeItem('appliedCoupon');
+    localStorage.removeItem('cartDiscount');
+  }, [appliedCoupon]);
+
+  useEffect(() => {
+    listProducts()
       .then((data) => {
         const safeProducts = Array.isArray(data) ? data : (data?.products || []);
         setProducts(safeProducts);
@@ -51,16 +64,7 @@ export const StoreProvider = ({ children }) => {
   useEffect(() => {
     // Only fetch ALL orders if the user is logged in as an owner (admin)
     if (user && user.role === 'owner') {
-      const token = localStorage.getItem('token');
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error("Failed to fetch orders");
-          return res.json();
-        })
+      getAllOrders()
         .then((data) => {
           const safeOrders = Array.isArray(data) ? data : (data?.orders || []);
           setOrders(safeOrders);
@@ -69,30 +73,15 @@ export const StoreProvider = ({ children }) => {
           console.error("Database connection error (Orders):", err);
           setOrders([]); 
         });
-    } else {
-      // Normal users don't need the global orders state populated
-      setOrders([]);
     }
   }, [user]);
 
   // Function for Admin Dashboard to mark orders as delivered
   const updateOrderStatus = async (orderId) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${orderId}/deliver`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (response.ok) {
-        const updatedOrder = await response.json();
-        setOrders(prev => prev.map(o => o._id === orderId ? updatedOrder : o));
-        showToast("Order marked as delivered!");
-      } else {
-        showToast("Failed to update order status.");
-      }
+      const updatedOrder = await markOrderDelivered(orderId);
+      setOrders(prev => prev.map(o => o._id === orderId ? updatedOrder : o));
+      showToast("Order marked as delivered!");
     } catch (error) {
       console.error("Error updating order status:", error);
       showToast("Error updating order status.");
@@ -104,10 +93,11 @@ export const StoreProvider = ({ children }) => {
     setTimeout(() => setToast(null), 3000);
   };
   const logout = () => {
-    setUser(null); // This triggers the useEffect to clear localStorage
-    setOrders([]); // Clears their personal orders from the screen for security
+    localStorage.removeItem('token');
+    setUser(null);
+    setOrders([]);
     showToast("Logged out successfully");
-  };  
+  };
   const addToCart = (newProduct) => {
     setCartItems((prevCartItems) => {
       const itemExists = prevCartItems.find((item) => item._id === newProduct._id);
@@ -124,7 +114,14 @@ export const StoreProvider = ({ children }) => {
   };
 
   const removeFromCart = (id) => {
-    setCartItems((prevCartItems) => prevCartItems.filter((item) => item._id !== id));
+    const nextItems = cartItems.filter((item) => item._id !== id);
+    setCartItems(nextItems);
+    if (nextItems.length === 0) setAppliedCoupon(null);
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
+    setAppliedCoupon(null);
   };
 
   const safeCartItems = Array.isArray(cartItems) ? cartItems : [];
@@ -133,28 +130,9 @@ export const StoreProvider = ({ children }) => {
 
   const addProduct = async (productData) => {
       try {
-        const isFormData = productData instanceof FormData;
-        
-        const fetchOptions = {
-          method: 'POST',
-          body: isFormData ? productData : JSON.stringify(productData),
-        };
-
-        if (!isFormData) {
-          fetchOptions.headers = {
-            'Content-Type': 'application/json'
-          };
-        }
-
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products`, fetchOptions);
-        
-        if (response.ok) {
-          const createdProduct = await response.json();
-          const newItem = createdProduct?.product || createdProduct;
-          setProducts(prev => [...prev, newItem]); 
-          return true;
-        }
-        return false;
+        const createdProduct = await createProductRequest(productData);
+        setProducts(prev => [...prev, createdProduct]);
+        return true;
       } catch (error) {
         console.error("API Error - Creating product:", error);
         return false;
@@ -163,12 +141,8 @@ export const StoreProvider = ({ children }) => {
 
   const deleteProduct = async (id) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products/${id}`, {
-        method: 'DELETE',
-      });
-      if (response.ok) {
-        setProducts(prev => prev.filter((product) => product._id !== id)); 
-      }
+      await deleteProductRequest(id);
+      setProducts(prev => prev.filter((product) => product._id !== id));
     } catch (error) {
       console.error("API Error - Deleting product:", error);
     }
@@ -176,27 +150,9 @@ export const StoreProvider = ({ children }) => {
 
   const updateProduct = async (id, productData) => {
     try {
-      const isFormData = productData instanceof FormData;
-      
-      const fetchOptions = {
-        method: 'PUT', 
-        body: isFormData ? productData : JSON.stringify(productData),
-      };
-
-      if (!isFormData) {
-        fetchOptions.headers = {
-          'Content-Type': 'application/json'
-        };
-      }
-
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products/${id}`, fetchOptions);
-      
-      if (response.ok) {
-        const updatedItem = await response.json();
-        setProducts(prev => prev.map(p => p._id === id ? updatedItem : p)); 
-        return true;
-      }
-      return false;
+      const updatedItem = await updateProductRequest(id, productData);
+      setProducts(prev => prev.map(p => p._id === id ? updatedItem : p));
+      return true;
     } catch (error) {
       console.error("API Error - Updating product:", error);
       return false;
@@ -210,8 +166,8 @@ export const StoreProvider = ({ children }) => {
       user, setUser, logout, // 👇 ADDED logout HERE
       searchQuery, setSearchQuery, 
       toast, showToast,
-      discount, setDiscount,
-      cartItems, setCartItems, addToCart, removeFromCart, cartTotal, cartCount, 
+      discount, appliedCoupon, setAppliedCoupon,
+      cartItems, setCartItems, addToCart, removeFromCart, clearCart, cartTotal, cartCount,
       products, addProduct, deleteProduct, updateProduct,
       orders, updateOrderStatus
     }}>

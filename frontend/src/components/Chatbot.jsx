@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import { MessageSquare, X, Send } from 'lucide-react';
-import { io } from 'socket.io-client';
-import { StoreContext } from '../context/StoreContext';
+import { StoreContext } from '../context/StoreContextContext';
+import { createAuthenticatedSocket } from '../api/chatApi';
 
 let socket;
 
@@ -21,11 +21,10 @@ export default function Chatbot() {
   useEffect(() => {
     if (user && isOpen) {
       // Connect to socket when chat is opened
-      socket = io(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`);
-      
-      const safeId = user._id || user.id;
+      socket = createAuthenticatedSocket();
+
       // Join the chat room for this specific user
-      socket.emit('join_chat', safeId);
+      socket.emit('join_chat');
 
       // Receive historical messages
       socket.on('chat_history', (history) => {
@@ -35,6 +34,10 @@ export default function Chatbot() {
       // Receive a new real-time message (from themselves or admin)
       socket.on('receive_message', (message) => {
         setMessages((prev) => [...prev, message]);
+      });
+
+      socket.on('chat_error', (message) => {
+        setMessages((prev) => [...prev, { sender: 'admin', text: message }]);
       });
 
       return () => {
@@ -48,8 +51,7 @@ export default function Chatbot() {
     if (!input.trim() || !user) return;
 
     // Send the message through the socket
-    const safeId = user._id || user.id;
-    socket.emit('send_message', { userId: safeId, text: input });
+    socket.emit('send_message', { text: input });
     setInput('');
   };
 

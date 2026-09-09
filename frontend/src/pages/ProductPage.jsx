@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { StoreContext } from '../context/StoreContext';
-import { Star, ShoppingCart, User, AlertCircle, Loader } from 'lucide-react';
+import { StoreContext } from '../context/StoreContextContext';
+import { Star, ShoppingCart, User, AlertCircle } from 'lucide-react';
+import { createReview, getProduct } from '../api/productApi';
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -18,21 +19,20 @@ export default function ProductPage() {
   const [reviewSuccess, setReviewSuccess] = useState(false);
 
   // Fetch the product from the backend
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products/${id}`);
-      const data = await response.json();
-      setProduct(data);
+      setProduct(await getProduct(id));
     } catch (error) {
       console.error("Error fetching product:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
-    fetchProduct();
-  }, [id]);
+    const timer = setTimeout(() => void fetchProduct(), 0);
+    return () => clearTimeout(timer);
+  }, [fetchProduct]);
 
   // Handle the Review Form Submission
   const submitReview = async (e) => {
@@ -42,28 +42,13 @@ export default function ProductPage() {
     setReviewSuccess(false);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products/${id}/reviews`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ rating, comment }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setReviewSuccess(true);
-        setComment(''); // Clear the form
-        setRating(5);
-        fetchProduct(); // Instantly reload to show the new review!
-      } else {
-        setReviewError(data.message || 'Failed to submit review');
-      }
+      await createReview(id, { rating, comment });
+      setReviewSuccess(true);
+      setComment('');
+      setRating(5);
+      await fetchProduct();
     } catch (error) {
-      setReviewError('Server error. Please try again later.');
+      setReviewError(error.message || 'Server error. Please try again later.');
     } finally {
       setReviewLoading(false);
     }

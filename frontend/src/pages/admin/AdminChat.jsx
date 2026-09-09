@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { StoreContext } from '../../context/StoreContext';
-import { io } from 'socket.io-client';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Send, User, MessageSquare } from 'lucide-react';
+import { createAuthenticatedSocket, getChatSessions } from '../../api/chatApi';
 
 let socket;
 
@@ -16,25 +15,19 @@ export default function AdminChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [activeSession?.messages]);
 
-  const fetchSessions = async () => {
+  const fetchSessions = useCallback(async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/chat/sessions`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setSessions(data);
-      }
+      setSessions(await getChatSessions());
     } catch (error) {
       console.error('Error fetching chat sessions:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (token) {
-      fetchSessions();
+      const timer = setTimeout(() => void fetchSessions(), 0);
 
-      socket = io(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`);
+      socket = createAuthenticatedSocket();
       socket.emit('join_admin');
 
       socket.on('new_admin_message', ({ userId, message }) => {
@@ -47,7 +40,7 @@ export default function AdminChat() {
             updatedSessions[sessionIndex].lastUpdated = new Date().toISOString();
             updatedSessions.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
           } else {
-            fetchSessions();
+            void fetchSessions();
           }
           return updatedSessions;
         });
@@ -65,10 +58,11 @@ export default function AdminChat() {
       });
 
       return () => {
+        clearTimeout(timer);
         socket.disconnect();
       };
     }
-  }, [token]);
+  }, [token, fetchSessions]);
 
   const sendMessage = (e) => {
     e.preventDefault();

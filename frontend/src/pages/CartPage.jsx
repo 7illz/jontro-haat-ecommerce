@@ -1,15 +1,16 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { StoreContext } from '../context/StoreContext';
+import { StoreContext } from '../context/StoreContextContext';
 import { Trash2, ShoppingBag, ArrowRight, Tag } from 'lucide-react';
+import { applyCoupon } from '../api/couponApi';
 
 export default function CartPage() {
   const navigate = useNavigate();
   // Assuming your StoreContext provides these. Adjust names if yours are slightly different!
-  const { user, cartItems = [], removeFromCart, addToCart, discount, setDiscount } = useContext(StoreContext);
+  const { user, cartItems = [], removeFromCart, addToCart, discount, appliedCoupon, setAppliedCoupon } = useContext(StoreContext);
 
   // --- COUPON STATE ---
-  const [couponCode, setCouponCode] = useState('');
+  const [couponCode, setCouponCode] = useState(appliedCoupon?.code || '');
   const [couponError, setCouponError] = useState('');
   const [couponSuccess, setCouponSuccess] = useState('');
   const [isApplying, setIsApplying] = useState(false);
@@ -34,23 +35,12 @@ export default function CartPage() {
     setCouponSuccess('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/coupons/apply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: couponCode })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setDiscount(data.discountPercentage);
-        setCouponSuccess(`Success! ${data.discountPercentage}% discount applied.`);
-      } else {
-        setDiscount(0);
-        setCouponError(data.message || 'Invalid coupon');
-      }
+      const data = await applyCoupon(couponCode);
+      setAppliedCoupon({ code: data.code, discountPercentage: data.discountPercentage });
+      setCouponSuccess(`Success! ${data.discountPercentage}% discount applied.`);
     } catch (error) {
-      setCouponError('Error applying coupon. Please try again.');
+      setAppliedCoupon(null);
+      setCouponError(error.message || 'Error applying coupon. Please try again.');
     } finally {
       setIsApplying(false);
     }

@@ -1,49 +1,60 @@
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
+const { mongoUri } = require('./config/env');
 const User = require('./models/userModel');
 const Product = require('./models/productModel');
 const products = require('./data/products');
 
-// Load environment variables so we can connect to the database
-dotenv.config();
+const validateProducts = (items) => {
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new Error('backend/data/products.js must export at least one product.');
+  }
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB Connected for Seeding...'))
-  .catch((err) => {
-    console.error('MongoDB Connection Error:', err);
-    process.exit(1);
-  });
-
-const importData = async () => {
-  try {
-    // 1. Clear out any old products to prevent duplicates
-    // await Product.deleteMany(); // commented out to prevent wiping the database
-
-    // 2. Find a user to act as the "Admin/Owner" who created these products.
-    // We will just grab the first user in your database (which is you!)
-    const adminUser = await User.findOne({}); 
-
-    if (!adminUser) {
-      console.error("❌ No users found in database! Please log in on the frontend at least once before seeding products.");
-      process.exit(1);
+  for (const [index, product] of items.entries()) {
+    const requiredFields = ['name', 'image', 'description', 'brand', 'category'];
+    for (const field of requiredFields) {
+      if (typeof product[field] !== 'string' || !product[field].trim()) {
+        throw new Error(`Product ${index + 1} is missing ${field}.`);
+      }
     }
-
-    // 3. Attach the adminUser's ObjectId to every sample product
-    // (Because your Product Model requires a 'user' field)
-    const sampleProducts = products.map((product) => {
-      return { ...product, user: adminUser._id };
-    });
-
-    // 4. Insert into the database!
-    await Product.insertMany(sampleProducts);
-
-    console.log('✅ Sample Data Successfully Imported!');
-    process.exit();
-  } catch (error) {
-    console.error(`❌ Error importing data: ${error.message}`);
-    process.exit(1);
+    if (!/^https?:\/\//i.test(product.image)) {
+      throw new Error(`Product "${product.name}" must use an HTTP(S) image link.`);
+    }
+    if (!Number.isFinite(product.price) || product.price < 0) {
+      throw new Error(`Product "${product.name}" has an invalid price.`);
+    }
+    if (!Number.isInteger(product.countInStock) || product.countInStock < 0) {
+      throw new Error(`Product "${product.name}" has an invalid stock count.`);
+    }
   }
 };
 
-// Run the function
-importData();
+const seedProducts = async () => {
+  try {
+    validateProducts(products);
+    await mongoose.connect(mongoUri);
+
+    const owner = await User.findOne({ role: 'owner' });
+    if (!owner) throw new Error('No owner account found. Create or promote an owner before importing products.');
+
+    const operations = products.map(({ rating = 0, numReviews = 0, ...product }) => ({
+      updateOne: {
+        filter: { name: product.name },
+        update: {
+          $set: { ...product, user: owner._id },
+          $setOnInsert: { rating, numReviews },
+        },
+        upsert: true,
+      },
+    }));
+
+    const result = await Product.bulkWrite(operations);
+    console.log(`Catalog imported: ${result.upsertedCount} added, ${result.modifiedCount} updated.`);
+  } finally {
+    await mongoose.disconnect();
+  }
+};
+
+seedProducts().catch((error) => {
+  console.error(`Product import failed: ${error.message}`);
+  process.exitCode = 1;
+});

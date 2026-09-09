@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, ShoppingCart, Filter, ArrowDownUp, Loader } from 'lucide-react';
-import { StoreContext } from '../context/StoreContext';
+import { Star, ShoppingCart, Filter, ArrowDownUp } from 'lucide-react';
+import { StoreContext } from '../context/StoreContextContext';
+import { listProducts } from '../api/productApi';
 
 // Shimmer Loading Skeleton for Product Cards
 const ProductSkeleton = () => (
@@ -34,7 +35,7 @@ export default function HomePage() {
   const slides = [
     { id: 1, image: '/images/hero_slide_1.png', label: 'Pro Gaming Gear', desc: 'Up to 40% Off' },
     { id: 2, image: '/images/hero_slide_2.png', label: 'Premium Watches', desc: 'New Arrivals' },
-    { id: 3, image: '/images/hero_slide_3.png', label: 'Sleek Laptops', desc: 'Starting at $999' }
+    { id: 3, image: '/images/hero_slide_3.png', label: 'Sleek Laptops', desc: 'Starting at ৳124,990' }
   ];
 
   useEffect(() => {
@@ -49,14 +50,7 @@ export default function HomePage() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        // Build the dynamic URL query string
-        const queryParams = new URLSearchParams();
-        if (searchQuery) queryParams.append('keyword', searchQuery);
-        if (selectedCategory) queryParams.append('category', selectedCategory);
-        if (sortOrder) queryParams.append('sort', sortOrder);
-
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products?${queryParams.toString()}`);
-        const data = await response.json();
+        const data = await listProducts({ keyword: searchQuery, category: selectedCategory, sort: sortOrder });
         
         // Update our state with data from the new controller
         setProducts(data.products || []);
