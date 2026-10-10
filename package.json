@@ -18,6 +18,7 @@
   "homepage": "https://github.com/7illz/nexus-store-ecommerce#readme",
   "devDependencies": {
     "@playwright/test": "^1.63.0",
-    "@types/node": "^26.6.4"
+    "@types/node": "^26.6.4",
+    "wait-on": "^9.5.1"
   }
 }

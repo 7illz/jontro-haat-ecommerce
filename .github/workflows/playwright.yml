@@ -1,0 +1,80 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    # These environment variables are required by your backend and frontend to start successfully
+    env:
+      PORT: 5000
+      MONGO_URI: mongodb://127.0.0.1:27017/ecommerce?replicaSet=rs0
+      JWT_SECRET: testing-secret
+      FRONTEND_URL: http://localhost:5173
+      VITE_API_URL: http://localhost:5000
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+
+    # 1. Setup a local MongoDB instance with Replica Set enabled
+    # Your backend specifically requires transactions (which require replica sets)
+    - name: Start MongoDB Replica Set
+      uses: supercharge/mongodb-github-action@1.11.0
+      with:
+        mongodb-version: '6.0'
+        mongodb-replica-set: rs0
+
+    # 2. Install backend and frontend dependencies
+    - name: Install dependencies
+      run: |
+        npm ci
+        cd backend && npm ci
+        cd ../frontend && npm ci
+
+    # 3. Install Playwright browsers
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    # 4. Seed the database with sample products so tests have data
+    - name: Seed Database
+      run: cd backend && npm run seed:products
+
+    # 5. Start the backend and frontend servers in the background
+    - name: Start Backend Server
+      run: cd backend && npm run dev &
+    
+    - name: Start Frontend Server
+      run: cd frontend && npm run dev &
+
+    # 6. Wait for servers to be ready before running tests
+    - name: Wait for servers
+      run: |
+        npx wait-on http://localhost:5000/api
+        npx wait-on http://localhost:5173
+
+    # 7. Run Playwright tests
+    - name: Run Playwright tests
+      run: npx playwright test
+      env:
+        CI: true
+
+    # 8. Upload test report if tests fail
+    - name: Upload Playwright report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
