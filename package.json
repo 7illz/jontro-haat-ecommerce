@@ -1,0 +1,23 @@
+{
+  "name": "my-ecommerce-site",
+  "version": "1.0.0",
+  "description": "Nexus Store is a full-stack e-commerce application with a responsive customer storefront and a protected administration dashboard. Customers can browse and review products, manage a cart, apply coupons, place orders, view order history, and chat with support in real time.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/7illz/nexus-store-ecommerce.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/7illz/nexus-store-ecommerce/issues"
+  },
+  "homepage": "https://github.com/7illz/nexus-store-ecommerce#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.4"
+  }
+}
