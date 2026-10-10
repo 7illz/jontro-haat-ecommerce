@@ -25,6 +25,7 @@ Nexus Store is a full-stack e-commerce application with a responsive customer st
 | Authentication | JWT, bcrypt, Google OAuth |
 | Media | Multer, Cloudinary |
 | Email | Resend, Nodemailer |
+| Testing | Playwright, TypeScript |
 
 ## Project structure
 
@@ -40,12 +41,14 @@ my-ecommerce-site/
 |   |-- sockets/         # Real-time chat handlers
 |   |-- app.js           # Express application
 |   `-- server.js        # Database, HTTP, and Socket.IO startup
-`-- frontend/
-    `-- src/
-        |-- api/         # API and socket clients
-        |-- components/  # Shared storefront and admin components
-        |-- context/     # Global store state
-        `-- pages/       # Storefront and admin pages
+|-- frontend/
+|   `-- src/
+|       |-- api/         # API and socket clients
+|       |-- components/  # Shared storefront and admin components
+|       |-- context/     # Global store state
+|       `-- pages/       # Storefront and admin pages
+|-- tests/               # Playwright E2E test specs
+`-- playwright.config.ts # Playwright test configuration
 ```
 
 ## Getting started
@@ -146,6 +149,189 @@ npm run build    # Create a production build
 npm run lint     # Run ESLint
 npm run preview  # Preview the production build
 ```
+
+## Testing
+
+Nexus Store includes an end-to-end (E2E) test suite built with [Playwright](https://playwright.dev/) and written in **TypeScript**. The tests run against the real frontend and backend, simulating genuine user interactions in a browser.
+
+### Test stack
+
+| Tool | Purpose |
+| --- | --- |
+| [Playwright](https://playwright.dev/) | Browser automation and E2E test runner |
+| TypeScript | Strongly-typed test authoring |
+
+Playwright is installed as a dev dependency at the project root (`@playwright/test`). Configuration lives in [`playwright.config.ts`](playwright.config.ts).
+
+### Prerequisites
+
+Before running the tests make sure:
+
+1. **Backend is running** — `cd backend && npm run dev` (default `http://localhost:5000`).
+2. **Frontend is running** — `cd frontend && npm run dev` (default `http://localhost:5173`).
+3. **Seed data exists** — Run `cd backend && npm run seed:products` so the product catalog is populated.
+4. **Test user exists** — A user with email `test@example.com` / password `123456` must exist in the database (register one through the storefront or insert directly into MongoDB).
+5. **Admin user exists** *(for admin tests)* — A user with email `admin@example.com` / password `admin123` and role `owner` must exist in the database.
+6. **Playwright browsers are installed** — Run the install command below if this is your first time.
+
+### Setup
+
+From the project root:
+
+```bash
+# Install project dev dependencies (includes @playwright/test)
+npm install
+
+# Download the browser binaries Playwright needs (Chromium, Firefox, WebKit)
+npx playwright install
+```
+
+### Running the tests
+
+```bash
+# Run all tests across all configured browsers (Chromium, Firefox, WebKit)
+npx playwright test
+
+# Run a specific test file
+npx playwright test tests/auth.spec.ts
+
+# Run tests in headed mode (opens a visible browser window)
+npx playwright test --headed
+
+# Run tests in a single browser only
+npx playwright test --project=chromium
+
+# Run tests with the Playwright UI (interactive mode)
+npx playwright test --ui
+
+# View the HTML report after a test run
+npx playwright show-report
+```
+
+### Test structure
+
+```text
+my-ecommerce-site/
+|-- tests/
+|   |-- auth.spec.ts       # Authentication flows
+|   |-- homepage.spec.ts   # Homepage and product browsing
+|   |-- cart.spec.ts       # Shopping cart operations
+|   |-- checkout.spec.ts   # Checkout and order placement
+|   |-- admin.spec.ts      # Admin dashboard access and features
+|   `-- example.spec.ts    # Playwright example / smoke test
+|-- playwright.config.ts   # Playwright configuration
+`-- package.json           # Dev dependencies (@playwright/test)
+```
+
+### Test coverage
+
+#### `auth.spec.ts` — Authentication (7 tests)
+
+| # | Test | What it verifies |
+| --- | --- | --- |
+| 1 | Login page renders correctly | Email field, password field, and "Sign In" button are visible |
+| 2 | Login with valid credentials | User is redirected to `/` after successful login |
+| 3 | Navbar post-login state | User name and "Logout" button appear; "Log In" link is hidden |
+| 4 | Protected route `/profile` | Unauthenticated users are redirected to `/login` |
+| 5 | Protected route `/checkout` | Unauthenticated users are redirected to `/login` |
+| 6 | Logout clears session | Clicking "Logout" clears localStorage and reverts the navbar |
+| 7 | Invalid credentials | Wrong email/password shows a red error message and stays on `/login` |
+
+#### `homepage.spec.ts` — Homepage & Product Browsing (8 tests)
+
+| # | Test | What it verifies |
+| --- | --- | --- |
+| 1 | Hero heading visible | The "Next-Gen Tech & Gear" hero heading renders |
+| 2 | Product cards load | At least one product card is visible after the API resolves |
+| 3 | Card content | Each card shows a non-empty name and a valid ৳ price |
+| 4 | Product navigation | Clicking a card navigates to `/product/:id` |
+| 5 | Search filtering | Typing in the search bar filters and shows "Search Results for…" |
+| 6 | Navbar brand | NexusStore brand link is visible and navigates to `/` |
+| 7 | Category filter | Selecting a category narrows the product list to matching items |
+| 8 | Empty search state | A nonsense query shows "No products found" with a "Clear Filters" button |
+
+#### `cart.spec.ts` — Shopping Cart (8 tests)
+
+| # | Test | What it verifies |
+| --- | --- | --- |
+| 1 | Add to cart | Product is added from the product page; navbar badge appears |
+| 2 | Badge count | Navbar cart badge shows "1" after adding a single item |
+| 3 | Cart page shows item | Added product appears in the cart list on `/cart` |
+| 4 | Quantity update | Changing the quantity dropdown updates the badge and subtotal |
+| 5 | Remove item | Clicking the trash icon removes the item and shows the empty state |
+| 6 | Order Summary | Subtotal and total prices are displayed with correct ৳ formatting |
+| 7 | Empty cart state | Visiting `/cart` with nothing added shows "Your cart is empty" |
+| 8 | Proceed to Checkout | The checkout button navigates a logged-in user to `/checkout` |
+
+#### `checkout.spec.ts` — Checkout & Orders (9 tests)
+
+| # | Test | What it verifies |
+| --- | --- | --- |
+| 1 | Auth guard | Unauthenticated users are redirected to `/login` |
+| 2 | Access checkout | Logged-in user with cart items can reach `/checkout` |
+| 3 | Form fields | All shipping fields, payment radios, and "Place Order" button render |
+| 4 | Place order (mocked) | Filling the form and submitting redirects to `/` on success |
+| 5 | Success toast | "Order placed successfully! 🎉" toast appears after order |
+| 6 | Cart cleared | Cart badge disappears and localStorage is emptied after order |
+| 7 | Empty cart guard | Visiting `/checkout` with an empty cart shows the empty state |
+| 8 | Order Summary panel | Item subtotal, shipping, tax (8%), and total lines are visible |
+| 9 | Processing overlay | "Placing Order" overlay appears while the API request is in-flight |
+
+> **Note:** Checkout tests mock the `POST /api/orders` endpoint with `page.route()` so no real orders are created in the database during test runs.
+
+#### `admin.spec.ts` — Admin Dashboard (6 tests)
+
+| # | Test | What it verifies |
+| --- | --- | --- |
+| 1 | Regular user blocked | A non-owner user visiting `/admin` is redirected to `/` |
+| 2 | Admin access | An owner user can access the admin dashboard |
+| 3 | Dashboard KPIs | Overview page shows Total Revenue, Total Orders, Pending Deliveries, Total Products, charts, and recent orders |
+| 4 | Product management | Admin can navigate to `/admin/products` and see the inventory table |
+| 5 | Order management | Admin can navigate to `/admin/orders` and see the order table |
+| 6 | Chatbot hidden | The customer chatbot is not rendered for admin/owner users |
+
+### Configuration
+
+The Playwright configuration is defined in [`playwright.config.ts`](playwright.config.ts):
+
+| Setting | Value | Notes |
+| --- | --- | --- |
+| `testDir` | `./tests` | All test files live here |
+| `baseURL` | `http://localhost:5173` | Frontend dev server URL |
+| `fullyParallel` | `true` | Tests run in parallel locally |
+| `retries` | `0` locally, `2` on CI | Automatic retries in CI only |
+| `workers` | Auto locally, `1` on CI | Single worker in CI for stability |
+| `reporter` | `html` | Generates an interactive HTML report |
+| `trace` | `on-first-retry` | Captures traces on first retry for debugging |
+| Browsers | Chromium, Firefox, WebKit | Cross-browser coverage by default |
+
+### Writing new tests
+
+1. Create a new `.spec.ts` file inside the `tests/` directory.
+2. Import `test` and `expect` from `@playwright/test`.
+3. Use `test.describe()` to group related scenarios.
+4. Use reusable helpers like `injectAuthSession()` for tests that need a logged-in user as a precondition (faster than filling the login form every time).
+5. Use `page.route()` to mock API endpoints when you want to avoid side effects (e.g., creating real orders).
+6. Target elements using accessible selectors: `getByRole()`, `getByLabel()`, `getByText()`, and `getByPlaceholder()`.
+
+### CI integration
+
+To run the test suite in a CI pipeline (e.g., GitHub Actions):
+
+```yaml
+- name: Install Playwright browsers
+  run: npx playwright install --with-deps
+
+- name: Run Playwright tests
+  run: npx playwright test
+  env:
+    CI: true
+```
+
+When `CI=true`, Playwright automatically:
+- Uses **1 worker** (no parallelism) for deterministic results.
+- Retries failed tests **2 times**.
+- Fails the build if any `test.only` calls are left in the source.
 
 ## API overview
 
