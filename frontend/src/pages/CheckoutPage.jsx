@@ -120,8 +120,9 @@ export default function CheckoutPage() {
             </h2>
             <form id="checkout-form" onSubmit={placeOrder} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1.5">Street Address</label>
+                <label htmlFor="address" className="block text-sm font-medium text-gray-400 mb-1.5">Street Address</label>
                 <input 
+                  id="address"
                   required 
                   type="text" 
                   name="address" 
@@ -133,8 +134,9 @@ export default function CheckoutPage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">City</label>
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-400 mb-1.5">City</label>
                   <input 
+                    id="city"
                     required 
                     type="text" 
                     name="city" 
@@ -145,8 +147,9 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Postal Code</label>
+                  <label htmlFor="postalCode" className="block text-sm font-medium text-gray-400 mb-1.5">Postal Code</label>
                   <input 
+                    id="postalCode"
                     required 
                     type="text" 
                     name="postalCode" 
@@ -158,8 +161,9 @@ export default function CheckoutPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1.5">Country</label>
+                <label htmlFor="country" className="block text-sm font-medium text-gray-400 mb-1.5">Country</label>
                 <input 
+                  id="country"
                   required 
                   type="text" 
                   name="country" 

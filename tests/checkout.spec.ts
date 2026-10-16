@@ -417,7 +417,7 @@ test.describe('Checkout', () => {
     // Pricing breakdown lines
     // CheckoutPage.jsx: "Items Subtotal", "Shipping", "Tax (8%)", "Total"
     await expect(page.getByText('Items Subtotal')).toBeVisible();
-    await expect(page.getByText('Shipping')).toBeVisible();
+    await expect(page.getByText('Shipping', { exact: true })).toBeVisible();
     await expect(page.getByText('Tax (8%)')).toBeVisible();
 
     // Total label
