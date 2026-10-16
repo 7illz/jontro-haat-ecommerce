@@ -56,6 +56,11 @@ jobs:
     - name: Run backend integration tests
       run: npm run test:backend
 
+    # Backend tests intentionally mutate the isolated database. Restore the
+    # canonical state before browser tests so their fixtures are deterministic.
+    - name: Reset fixtures for Playwright
+      run: npm run seed:test
+
     - name: Run Playwright tests
       run: npx playwright test
       env:

@@ -337,7 +337,7 @@ test.describe('Checkout', () => {
     await loginAndAddProductToCart(page);
 
     // Confirm cart is not empty before checkout
-    const cartBadge = page.locator('nav span').filter({ hasText: /^\d+$/ });
+    const cartBadge = page.locator('nav a[href="/cart"]:visible span').filter({ hasText: /^\d+$/ });
     await expect(cartBadge).toBeVisible({ timeout: 5_000 });
 
     // Mock the order API

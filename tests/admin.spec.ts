@@ -116,7 +116,7 @@ test.describe('Admin Panel', () => {
     await page.goto('/admin');
 
     // DashboardHome.jsx header
-    await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Overview', exact: true })).toBeVisible();
 
     // The four main KPI cards (using exact text from DashboardHome.jsx)
     await expect(page.getByText('Total Revenue', { exact: true })).toBeVisible();
@@ -145,16 +145,16 @@ test.describe('Admin Panel', () => {
     await expect(page).toHaveURL('/admin/products');
 
     // AdminProducts.jsx header
-    await expect(page.getByRole('heading', { name: 'Manage Inventory' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Manage Products' })).toBeVisible();
 
     // Check for product table columns
     await expect(page.getByRole('columnheader', { name: 'Product' })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: 'Price' })).toBeVisible();
-    await expect(page.getByRole('columnheader', { name: 'Stock' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Stock Status' })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: 'Actions' })).toBeVisible();
 
-    // Check for "Add New Product" button
-    await expect(page.getByRole('button', { name: 'Add New Product' })).toBeVisible();
+    // Check for the product creation button
+    await expect(page.getByRole('button', { name: 'Add Product' })).toBeVisible();
   });
 
   // -------------------------------------------------------------------------

@@ -148,7 +148,7 @@ test.describe('Shopping Cart', () => {
     //
     // Navbar.jsx: the badge span is only rendered when cartCount > 0.
     // It has class: "absolute -top-2 -right-2.5 ... rounded-full"
-    const cartBadge = page.locator('nav span').filter({
+    const cartBadge = page.locator('nav a[href="/cart"]:visible span').filter({
       hasText: /^\d+$/,   // contains only digits
     });
     await expect(cartBadge).toBeVisible({ timeout: 5_000 });
@@ -172,7 +172,7 @@ test.describe('Shopping Cart', () => {
 
     // Navbar.jsx: badge only renders when cartCount > 0.
     // Confirm it is NOT visible before we add anything.
-    const cartBadge = page.locator('nav span').filter({ hasText: /^\d+$/ });
+    const cartBadge = page.locator('nav a[href="/cart"]:visible span').filter({ hasText: /^\d+$/ });
     await expect(cartBadge).not.toBeVisible();
 
     // Open the first product page and add to cart
@@ -242,7 +242,7 @@ test.describe('Shopping Cart', () => {
 
     // StoreContext recalculates cartCount = sum of all qtys.
     // The Navbar badge should now show "2".
-    const cartBadge = page.locator('nav span').filter({ hasText: /^\d+$/ });
+    const cartBadge = page.locator('nav a[href="/cart"]:visible span').filter({ hasText: /^\d+$/ });
     await expect(cartBadge).toHaveText('2', { timeout: 5_000 });
 
     // The Order Summary subtotal text should reflect 2 items:
@@ -283,7 +283,7 @@ test.describe('Shopping Cart', () => {
     ).not.toBeVisible();
 
     // Navbar badge should be gone (cartCount === 0)
-    const cartBadge = page.locator('nav span').filter({ hasText: /^\d+$/ });
+    const cartBadge = page.locator('nav a[href="/cart"]:visible span').filter({ hasText: /^\d+$/ });
     await expect(cartBadge).not.toBeVisible();
   });
 
