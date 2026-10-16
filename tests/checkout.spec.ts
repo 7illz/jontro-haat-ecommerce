@@ -421,7 +421,7 @@ test.describe('Checkout', () => {
     await expect(page.getByText('Tax (8%)')).toBeVisible();
 
     // Total label
-    await expect(page.getByText('Total')).toBeVisible();
+    await expect(page.getByText('Total', { exact: true })).toBeVisible();
 
     // Total value: <span className="text-2xl font-extrabold gradient-text">৳...</span>
     const totalEl = page.locator('span.font-extrabold.gradient-text');
