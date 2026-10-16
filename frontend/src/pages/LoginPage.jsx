@@ -89,7 +89,7 @@ export default function LoginPage() {
               <h2 className="text-2xl font-bold text-gray-100">
                 {isLogin ? 'Welcome Back' : 'Create an Account'}
               </h2>
-              <p className="text-gray-500 mt-2">Secure access to your NexusStore account</p>
+              <p className="text-gray-500 mt-2">Secure access to your JontroHaat account</p>
             </div>
 
             {/* Error Message Alert */}

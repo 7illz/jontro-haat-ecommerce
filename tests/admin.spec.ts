@@ -5,13 +5,13 @@ import { test, expect, type Page } from '@playwright/test';
 // ---------------------------------------------------------------------------
 
 const REGULAR_USER = {
-  email: 'test@example.com',
-  password: '123456',
+  email: process.env.TEST_USER_EMAIL || 'test@example.com',
+  password: process.env.TEST_USER_PASSWORD || 'TestPass123!',
 };
 
 const ADMIN_USER = {
-  email: 'admin@example.com',
-  password: 'admin123',
+  email: process.env.TEST_ADMIN_EMAIL || 'admin@example.com',
+  password: process.env.TEST_ADMIN_PASSWORD || 'AdminPass123!',
 };
 
 // ---------------------------------------------------------------------------
@@ -28,7 +28,7 @@ async function injectAuthSession(page: Page, credentials: { email: string, passw
   await page.goto('/');
   const data = await page.evaluate(
     async ({ email, password }) => {
-      const res = await fetch('http://localhost:5000/api/users/login', {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

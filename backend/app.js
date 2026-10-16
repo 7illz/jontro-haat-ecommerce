@@ -9,6 +9,7 @@ const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const { getPublicPricing } = require('./services/pricingService');
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/chat', chatRoutes);
+app.get('/api/config/pricing', (req, res) => res.json(getPublicPricing()));
 
 app.get('/api', (req, res) => {
   res.json({ message: 'E-commerce API is running cleanly!' });

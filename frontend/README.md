@@ -1,6 +1,8 @@
-# Nexus Store frontend
+# JontroHaat frontend
 
-This directory contains the React and Vite storefront for Nexus Store. See the [main project README](../README.md) for features, environment configuration, local setup, and backend instructions.
+This directory contains the React and Vite storefront for JontroHaat. See the [main project README](../README.md) for features, environment configuration, local setup, and backend instructions.
+
+Live frontend: [https://nexus-store-ecommerce.vercel.app](https://nexus-store-ecommerce.vercel.app)
 
 ## Commands
 

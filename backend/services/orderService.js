@@ -3,10 +3,8 @@ const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
 const Coupon = require('../models/couponModel');
 const AppError = require('../utils/AppError');
-const { pricing } = require('../config/env');
 const { sendOrderConfirmation } = require('./orderNotificationService');
-
-const roundMoney = (value) => Math.round((value + Number.EPSILON) * 100) / 100;
+const { calculateTotals } = require('./pricingService');
 
 const combineQuantities = (orderItems) => {
   const quantities = new Map();
@@ -43,11 +41,10 @@ const placeOrder = async ({ orderItems, shippingAddress, paymentMethod, couponCo
         return { name: product.name, qty, image: product.image, price: product.price, product: product._id };
       });
 
-      const itemsPrice = roundMoney(trustedItems.reduce((sum, item) => sum + item.price * item.qty, 0));
-      const discountPrice = roundMoney(itemsPrice * ((coupon?.discountPercentage || 0) / 100));
-      const discountedSubtotal = roundMoney(itemsPrice - discountPrice);
-      const taxPrice = roundMoney(discountedSubtotal * pricing.taxRate);
-      const totalPrice = roundMoney(discountedSubtotal + pricing.flatShippingPrice + taxPrice);
+      const totals = calculateTotals(
+        trustedItems.reduce((sum, item) => sum + item.price * item.qty, 0),
+        coupon?.discountPercentage || 0
+      );
 
       for (const item of trustedItems) {
         const result = await Product.updateOne(
@@ -63,12 +60,12 @@ const placeOrder = async ({ orderItems, shippingAddress, paymentMethod, couponCo
         user: user._id,
         shippingAddress,
         paymentMethod,
-        itemsPrice,
-        discountPrice,
+        itemsPrice: totals.itemsPrice,
+        discountPrice: totals.discountPrice,
         couponCode: coupon?.code || null,
-        taxPrice,
-        shippingPrice: pricing.flatShippingPrice,
-        totalPrice,
+        taxPrice: totals.taxPrice,
+        shippingPrice: totals.shippingPrice,
+        totalPrice: totals.totalPrice,
         isPaid: false,
       }], { session });
     });

@@ -32,7 +32,7 @@ export default function Navbar() {
                 <Package className="h-8 w-8 text-brand-400 group-hover:text-brand-300 transition-colors duration-300" />
                 <div className="absolute inset-0 bg-brand-500/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
-              <span className="ml-2 text-xl font-bold tracking-tight gradient-text">NexusStore</span>
+              <span className="ml-2 text-xl font-bold tracking-tight gradient-text">JontroHaat</span>
             </Link>
 
             {/* Desktop Search Bar */}

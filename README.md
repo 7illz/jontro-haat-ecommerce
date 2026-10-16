@@ -1,6 +1,13 @@
-# Nexus Store
+# JontroHaat
 
-Nexus Store is a full-stack e-commerce application with a responsive customer storefront and a protected administration dashboard. Customers can browse and review products, manage a cart, apply coupons, place orders, view order history, and chat with support in real time.
+JontroHaat is a full-stack e-commerce application with a responsive customer storefront and a protected administration dashboard. Customers can browse and review products, manage a cart, apply coupons, place orders, view order history, and chat with support in real time.
+
+## Live deployment
+
+- **Frontend:** [Open JontroHaat](https://nexus-store-ecommerce.vercel.app)
+- **Source:** [github.com/7illz/jontro-haat-ecommerce](https://github.com/7illz/jontro-haat-ecommerce)
+
+The frontend is deployed on Vercel. Features that call the API require `VITE_API_URL` to point to a running deployment of the backend.
 
 ## Features
 
@@ -25,12 +32,12 @@ Nexus Store is a full-stack e-commerce application with a responsive customer st
 | Authentication | JWT, bcrypt, Google OAuth |
 | Media | Multer, Cloudinary |
 | Email | Resend, Nodemailer |
-| Testing | Playwright, TypeScript |
+| Testing | Vitest, Supertest, Playwright, TypeScript |
 
 ## Project structure
 
 ```text
-my-ecommerce-site/
+jontro-haat-ecommerce/
 |-- backend/
 |   |-- config/          # Environment and CORS configuration
 |   |-- controllers/     # HTTP request handlers
@@ -39,6 +46,7 @@ my-ecommerce-site/
 |   |-- routes/          # REST API routes
 |   |-- services/        # Application and business logic
 |   |-- sockets/         # Real-time chat handlers
+|   |-- tests/           # Backend API and service integration tests
 |   |-- app.js           # Express application
 |   `-- server.js        # Database, HTTP, and Socket.IO startup
 |-- frontend/
@@ -64,8 +72,8 @@ Checkout uses MongoDB transactions, so the configured MongoDB deployment must su
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/7illz/nexus-store-ecommerce.git
-cd nexus-store-ecommerce
+git clone https://github.com/7illz/jontro-haat-ecommerce.git
+cd jontro-haat-ecommerce
 ```
 
 ### 2. Configure and run the backend
@@ -93,6 +101,9 @@ Update `backend/.env` with your own values:
 | `FRONTEND_URL` | Allowed frontend origin; comma-separate multiple origins | `http://localhost:5173` |
 | `FLAT_SHIPPING_PRICE` | Flat shipping charge | `10` |
 | `TAX_RATE` | Tax rate as a decimal | `0.08` |
+| `CURRENCY_CODE` | ISO-style display currency code | `BDT` |
+| `CURRENCY_SYMBOL` | Currency symbol returned to the storefront | `৳` |
+| `MONGO_URI_TEST` | Isolated replica-set database used by tests | Database name must contain `test` |
 | `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | Optional for URL-only images |
 | `CLOUDINARY_API_KEY` | Cloudinary API key | Optional for URL-only images |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret | Optional for URL-only images |
@@ -124,7 +135,7 @@ The storefront runs at `http://localhost:5173` by default.
 
 Public registration creates a customer account. To bootstrap the first owner, register normally and change that user's `role` from `user` to `owner` directly in MongoDB. Once an owner exists, the protected owner-registration endpoint can create additional owners.
 
-To import or update the sample product catalog after creating an owner:
+To import or update the sample product catalog (an existing owner is associated when available):
 
 ```bash
 cd backend
@@ -132,6 +143,18 @@ npm run seed:products
 ```
 
 ## Available scripts
+
+From the repository root:
+
+```bash
+npm run dev           # Start backend and frontend together
+npm run build         # Build the production frontend
+npm run lint          # Check frontend and backend source
+npm test              # Run backend integration tests with coverage
+npm run test:e2e      # Run Playwright (starts both servers)
+npm run test:all      # Run lint, backend tests, and E2E tests
+npm run seed:test     # Reset deterministic fixtures in the isolated test DB
+```
 
 ### Backend
 
@@ -152,27 +175,23 @@ npm run preview  # Preview the production build
 
 ## Testing
 
-Nexus Store includes an end-to-end (E2E) test suite built with [Playwright](https://playwright.dev/) and written in **TypeScript**. The tests run against the real frontend and backend, simulating genuine user interactions in a browser.
+JontroHaat includes database-backed API integration tests using Vitest/Supertest and an end-to-end suite built with Playwright. Checkout tests require MongoDB configured as a replica set because production checkout uses transactions.
 
 ### Test stack
 
 | Tool | Purpose |
 | --- | --- |
 | [Playwright](https://playwright.dev/) | Browser automation and E2E test runner |
+| Vitest and Supertest | Backend service and HTTP integration tests with coverage |
 | TypeScript | Strongly-typed test authoring |
 
-Playwright is installed as a dev dependency at the project root (`@playwright/test`). Configuration lives in [`playwright.config.ts`](playwright.config.ts).
+Playwright is installed as a dev dependency at the project root (`@playwright/test`). Backend test dependencies live in `backend/package.json`. Playwright configuration lives in [`playwright.config.ts`](playwright.config.ts), and backend coverage settings live in [`backend/vitest.config.js`](backend/vitest.config.js).
 
 ### Prerequisites
 
-Before running the tests make sure:
+Provide `MONGO_URI_TEST` pointing to a replica-set database whose name contains `test`. The fixture command refuses any other database. `npm run seed:test` resets that database and creates deterministic users, products, and coupon states. Credentials can be overridden with `TEST_USER_EMAIL`, `TEST_USER_PASSWORD`, `TEST_ADMIN_EMAIL`, and `TEST_ADMIN_PASSWORD`; test-only defaults are documented in `backend/.env.example`.
 
-1. **Backend is running** — `cd backend && npm run dev` (default `http://localhost:5000`).
-2. **Frontend is running** — `cd frontend && npm run dev` (default `http://localhost:5173`).
-3. **Seed data exists** — Run `cd backend && npm run seed:products` so the product catalog is populated.
-4. **Test user exists** — A user with email `test@example.com` / password `123456` must exist in the database (register one through the storefront or insert directly into MongoDB).
-5. **Admin user exists** *(for admin tests)* — A user with email `admin@example.com` / password `admin123` and role `owner` must exist in the database.
-6. **Playwright browsers are installed** — Run the install command below if this is your first time.
+Playwright starts the backend and frontend automatically. Install its browser binaries once with `npx playwright install`.
 
 ### Setup
 
@@ -184,13 +203,19 @@ npm install
 
 # Download the browser binaries Playwright needs (Chromium, Firefox, WebKit)
 npx playwright install
+
+# Reset the isolated test database
+npm run seed:test
 ```
 
 ### Running the tests
 
 ```bash
-# Run all tests across all configured browsers (Chromium, Firefox, WebKit)
-npx playwright test
+# Run backend integration tests and coverage
+npm run test:backend
+
+# Run E2E tests across Chromium, Firefox, and WebKit
+npm run test:e2e
 
 # Run a specific test file
 npx playwright test tests/auth.spec.ts
@@ -211,14 +236,16 @@ npx playwright show-report
 ### Test structure
 
 ```text
-my-ecommerce-site/
+jontro-haat-ecommerce/
+|-- backend/
+|   `-- tests/
+|       `-- api.integration.test.js # Auth, authorization, coupons, pricing, and checkout
 |-- tests/
 |   |-- auth.spec.ts       # Authentication flows
 |   |-- homepage.spec.ts   # Homepage and product browsing
 |   |-- cart.spec.ts       # Shopping cart operations
 |   |-- checkout.spec.ts   # Checkout and order placement
 |   |-- admin.spec.ts      # Admin dashboard access and features
-|   `-- example.spec.ts    # Playwright example / smoke test
 |-- playwright.config.ts   # Playwright configuration
 `-- package.json           # Dev dependencies (@playwright/test)
 ```
@@ -246,7 +273,7 @@ my-ecommerce-site/
 | 3 | Card content | Each card shows a non-empty name and a valid ৳ price |
 | 4 | Product navigation | Clicking a card navigates to `/product/:id` |
 | 5 | Search filtering | Typing in the search bar filters and shows "Search Results for…" |
-| 6 | Navbar brand | NexusStore brand link is visible and navigates to `/` |
+| 6 | Navbar brand | JontroHaat brand link is visible and navigates to `/` |
 | 7 | Category filter | Selecting a category narrows the product list to matching items |
 | 8 | Empty search state | A nonsense query shows "No products found" with a "Clear Filters" button |
 
@@ -352,8 +379,9 @@ Authorization: Bearer <token>
 
 ## Production notes
 
-- Set `FRONTEND_URL` to the deployed frontend origin.
-- Set `VITE_API_URL` before building the frontend.
+- The frontend is deployed through Vercel using `frontend/` as the project root.
+- Set backend `FRONTEND_URL` to `https://nexus-store-ecommerce.vercel.app` (or a replacement custom domain) so browser API and Socket.IO requests pass CORS checks.
+- Set frontend `VITE_API_URL` to the public backend URL before triggering a Vercel build.
 - Use a strong, private `JWT_SECRET` and never commit `.env` files.
 - Use a MongoDB deployment with transaction support.
 - Configure Cloudinary before uploading product image files.

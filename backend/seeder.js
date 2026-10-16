@@ -34,13 +34,12 @@ const seedProducts = async () => {
     await mongoose.connect(mongoUri);
 
     const owner = await User.findOne({ role: 'owner' });
-    if (!owner) throw new Error('No owner account found. Create or promote an owner before importing products.');
 
     const operations = products.map(({ rating = 0, numReviews = 0, ...product }) => ({
       updateOne: {
         filter: { name: product.name },
         update: {
-          $set: { ...product, user: owner._id },
+          $set: { ...product, ...(owner ? { user: owner._id } : {}) },
           $setOnInsert: { rating, numReviews },
         },
         upsert: true,

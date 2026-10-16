@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { StoreContext } from './StoreContextContext';
 import { listProducts, createProduct as createProductRequest, deleteProduct as deleteProductRequest, updateProduct as updateProductRequest } from '../api/productApi';
 import { getAllOrders, markOrderDelivered } from '../api/orderApi';
+import { getPricingConfig } from '../api/pricingApi';
 
 const readStoredJson = (key, fallback) => {
   try {
@@ -30,6 +31,14 @@ export const StoreProvider = ({ children }) => {
   
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [pricing, setPricing] = useState(null);
+  const [pricingError, setPricingError] = useState('');
+
+  useEffect(() => {
+    getPricingConfig()
+      .then(setPricing)
+      .catch(() => setPricingError('Checkout pricing is temporarily unavailable.'));
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -169,7 +178,8 @@ export const StoreProvider = ({ children }) => {
       discount, appliedCoupon, setAppliedCoupon,
       cartItems, setCartItems, addToCart, removeFromCart, clearCart, cartTotal, cartCount,
       products, addProduct, deleteProduct, updateProduct,
-      orders, updateOrderStatus
+      orders, updateOrderStatus,
+      pricing, pricingError
     }}>
       {children}
     </StoreContext.Provider>

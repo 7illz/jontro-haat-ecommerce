@@ -162,18 +162,18 @@ test.describe('Homepage', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 6. The Navbar is visible with the NexusStore brand name
+  // 6. The Navbar is visible with the JontroHaat brand name
   // -------------------------------------------------------------------------
-  test('navbar is visible with the NexusStore brand logo', async ({ page }) => {
+  test('navbar is visible with the JontroHaat brand logo', async ({ page }) => {
     await page.goto('/');
 
     // Navbar.jsx: <nav className="sticky top-0 ...">
     const navbar = page.locator('nav').first();
     await expect(navbar).toBeVisible();
 
-    // Navbar.jsx brand link: <span className="... gradient-text">NexusStore</span>
+    // Navbar.jsx brand link: <span className="... gradient-text">JontroHaat</span>
     // We look for the link that contains this text
-    const brandLink = page.getByRole('link', { name: 'NexusStore' });
+    const brandLink = page.getByRole('link', { name: 'JontroHaat' });
     await expect(brandLink).toBeVisible();
 
     // Clicking it should keep us on / (it's a Link to="/")

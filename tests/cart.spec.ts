@@ -5,8 +5,8 @@ import { test, expect, type Page } from '@playwright/test';
 // ---------------------------------------------------------------------------
 
 const TEST_USER = {
-  email: 'test@example.com',
-  password: '123456',
+  email: process.env.TEST_USER_EMAIL || 'test@example.com',
+  password: process.env.TEST_USER_PASSWORD || 'TestPass123!',
   name: 'Test User', // ← update to match the exact name in your DB
 };
 
@@ -24,7 +24,7 @@ async function injectAuthSession(page: Page) {
 
   const data = await page.evaluate(
     async ({ email, password }) => {
-      const res = await fetch('http://localhost:5000/api/users/login', {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

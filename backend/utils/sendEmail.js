@@ -12,7 +12,7 @@ const sendEmail = async (options) => {
 
     // Send the email using Resend API
     const data = await resend.emails.send({
-      from: 'NexusStore <onboarding@resend.dev>', // You must use this specific address for free sandbox tier
+      from: 'JontroHaat <onboarding@resend.dev>', // Resend sandbox sender address
       to: options.email,
       subject: options.subject,
       html: options.html,

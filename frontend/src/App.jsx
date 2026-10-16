@@ -1,25 +1,26 @@
-import { useContext } from 'react';
+import { lazy, Suspense, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import { StoreProvider } from './context/StoreContext';
 import { StoreContext } from './context/StoreContextContext';
 import Navbar from './components/Navbar';
 
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import CartPage from './pages/CartPage';
-import ProductPage from './pages/ProductPage';
-import CheckoutPage from './pages/CheckoutPage';
-import ProfilePage from './pages/ProfilePage';
-import ContactPage from './pages/ContactPage';
-
 import AdminRoute from './components/AdminRoute';
-import AdminDashboard from './pages/admin/AdminDashboard'; // This acts as your Admin Layout/Sidebar
-import DashboardHome from './pages/admin/DashboardHome';   // This is your KPI dashboard
-
-import AdminProducts from './pages/admin/AdminProducts';
-import AdminOrders from './pages/admin/AdminOrders';
-import AdminChat from './pages/admin/AdminChat';
 import Chatbot from './components/Chatbot'; // Import the Chatbot component
+
+const HomePage = lazy(() => import('./pages/HomePage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const CartPage = lazy(() => import('./pages/CartPage'));
+const ProductPage = lazy(() => import('./pages/ProductPage'));
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const DashboardHome = lazy(() => import('./pages/admin/DashboardHome'));
+const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
+const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminChat = lazy(() => import('./pages/admin/AdminChat'));
+
+const RouteFallback = () => <div className="min-h-[40vh] grid place-items-center text-gray-400">Loading…</div>;
 
 // Toast notification component
 const ToastNotification = () => {
@@ -55,7 +56,8 @@ export default function App() {
   return (
     <StoreProvider>
       <Router>
-        <Routes>
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
           
           {/* 🛒 STOREFRONT ROUTES (Includes Navbar, max-width container, AND Chatbot) */}
           <Route element={<StorefrontLayout />}>
@@ -79,7 +81,8 @@ export default function App() {
             </Route>
           </Route>
 
-        </Routes>
+          </Routes>
+        </Suspense>
       </Router>
     </StoreProvider>
   );

@@ -2,7 +2,7 @@ const asyncHandler = require('../middleware/asyncHandler');
 const authService = require('../services/authService');
 
 const registerUser = asyncHandler(async (req, res) => {
-  res.status(201).json(await authService.register(req.body));
+  res.status(201).json(await authService.register({ ...req.body, role: 'user' }));
 });
 
 const loginUser = asyncHandler(async (req, res) => {

@@ -1,24 +1,34 @@
 {
-  "name": "my-ecommerce-site",
+  "name": "jontro-haat-ecommerce",
   "version": "1.0.0",
-  "description": "Nexus Store is a full-stack e-commerce application with a responsive customer storefront and a protected administration dashboard. Customers can browse and review products, manage a cart, apply coupons, place orders, view order history, and chat with support in real time.",
+  "description": "JontroHaat is a full-stack e-commerce application with a responsive customer storefront and a protected administration dashboard. Customers can browse and review products, manage a cart, apply coupons, place orders, view order history, and chat with support in real time.",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "dev": "concurrently -k -n backend,frontend -c yellow,cyan \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint && npm --prefix backend run lint",
+    "test": "npm run test:backend",
+    "test:backend": "npm --prefix backend test",
+    "test:e2e": "npm run seed:test && playwright test",
+    "test:all": "npm run lint && npm run test:backend && npm run test:e2e",
+    "seed:test": "npm --prefix backend run seed:test"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/7illz/nexus-store-ecommerce.git"
+    "url": "git+https://github.com/7illz/jontro-haat-ecommerce.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/7illz/nexus-store-ecommerce/issues"
+    "url": "https://github.com/7illz/jontro-haat-ecommerce/issues"
   },
-  "homepage": "https://github.com/7illz/nexus-store-ecommerce#readme",
+  "homepage": "https://github.com/7illz/jontro-haat-ecommerce#readme",
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@types/node": "^26.6.4",
+    "concurrently": "^9.2.1",
     "wait-on": "^9.5.1"
   }
 }

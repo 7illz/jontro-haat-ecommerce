@@ -10,8 +10,8 @@ const BASE_URL = 'http://localhost:5173';
  * ⚠️  Update "name" below to match the exact name stored for this account.
  */
 const TEST_USER = {
-  email: 'test@example.com',
-  password: '123456',
+  email: process.env.TEST_USER_EMAIL || 'test@example.com',
+  password: process.env.TEST_USER_PASSWORD || 'TestPass123!',
   name: 'Test User', // ← Change this to the actual name returned by your API
 };
 
@@ -71,7 +71,7 @@ async function loginViaAPI(
   // Call the backend from inside the browser context
   const data = await page.evaluate(
     async ({ email, password }) => {
-      const res = await fetch('http://localhost:5000/api/users/login', {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
