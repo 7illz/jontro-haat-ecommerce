@@ -181,6 +181,42 @@ const newProducts = [
     description: 'A comfortable wireless mouse with precise tracking, quiet controls, and a clean minimalist finish.',
     brand: 'Glacier', category: 'Accessories', price: 5990, countInStock: 34,
   },
+  {
+    name: 'NetLink AX3000 Wi-Fi 6 Router',
+    image: image('1745847768408-b7b83796cae6'),
+    description: 'A dual-band Wi-Fi 6 router with four external antennas for fast, reliable coverage across busy homes and small offices.',
+    brand: 'NetLink', category: 'Networking', price: 12490, countInStock: 19,
+  },
+  {
+    name: 'ReadGo 6-inch E-reader',
+    image: image('1543443807-7f734bdb8c82'),
+    description: 'A lightweight glare-free e-reader with an easy-on-the-eyes display and weeks of battery life for books on the go.',
+    brand: 'ReadGo', category: 'E-readers', price: 18990, countInStock: 15,
+  },
+  {
+    name: 'MeetCam 1080p USB Webcam',
+    image: image('1762681290673-ba1ad4ea0875'),
+    description: 'A compact full-HD webcam with a built-in microphone and monitor clip for video meetings, classes, and streaming.',
+    brand: 'MeetCam', category: 'Cameras', price: 6490, countInStock: 25,
+  },
+  {
+    name: 'WoodDock Wireless Charging Pad',
+    image: image('1677928120170-15d279be7845'),
+    description: 'A handcrafted wood-finish wireless charging pad that keeps compatible phones powered without adding cable clutter.',
+    brand: 'WoodDock', category: 'Accessories', price: 3990, countInStock: 31,
+  },
+  {
+    name: 'PocketVault 1TB Portable SSD',
+    image: image('1779896412225-e2f374234cd1'),
+    description: 'A pocket-sized 1TB solid-state drive for fast backups, large creative projects, and dependable portable storage.',
+    brand: 'PocketVault', category: 'Storage', price: 13990, countInStock: 21,
+  },
+  {
+    name: 'ErgoMesh Adjustable Office Chair',
+    image: image('1758607010203-d6b7f6ec9262'),
+    description: 'A supportive mesh office chair with adjustable height, armrests, and lumbar support for long work and gaming sessions.',
+    brand: 'ErgoMesh', category: 'Furniture', price: 24990, countInStock: 8,
+  },
 ];
 
 module.exports = newProducts;
