@@ -217,6 +217,96 @@ const newProducts = [
     description: 'A supportive mesh office chair with adjustable height, armrests, and lumbar support for long work and gaming sessions.',
     brand: 'ErgoMesh', category: 'Furniture', price: 24990, countInStock: 8,
   },
+  {
+    name: 'ApexView 27-inch QHD Gaming Monitor',
+    image: image('1589494466433-bc57eca8cc6e'),
+    description: 'A 27-inch QHD gaming monitor with a fast 165Hz refresh rate, low-latency response, adaptive sync, and vivid color for competitive play.',
+    brand: 'ApexView', category: 'Gaming Monitors', price: 32990, countInStock: 12,
+  },
+  {
+    name: 'TitanCore 16 RGB Gaming Laptop',
+    image: image('1771014817844-327a14245bd1'),
+    description: 'A performance-focused 16-inch gaming laptop with a high-refresh display, dedicated graphics, fast SSD storage, and customizable RGB keyboard.',
+    brand: 'TitanCore', category: 'Gaming Laptops', price: 149990, countInStock: 7,
+  },
+  {
+    name: 'PulseFire 87-Key RGB Mechanical Keyboard',
+    image: image('1674621703172-ef68b33e52da'),
+    description: 'A tenkeyless mechanical gaming keyboard with tactile switches, per-key RGB lighting, anti-ghosting, and a detachable USB cable.',
+    brand: 'PulseFire', category: 'Gaming Accessories', price: 7490, countInStock: 27,
+  },
+  {
+    name: 'FeatherAim Honeycomb Wireless Gaming Mouse',
+    image: image('1628832307345-7404b47f1751'),
+    description: 'A lightweight honeycomb-shell wireless gaming mouse with a precise optical sensor, programmable controls, and low-latency performance.',
+    brand: 'FeatherAim', category: 'Gaming Accessories', price: 6490, countInStock: 32,
+  },
+  {
+    name: 'Immersion 7.1 RGB Gaming Headset',
+    image: image('1640695254597-7ee90eed00fb'),
+    description: 'An over-ear gaming headset with virtual 7.1 surround sound, soft memory-foam cushions, RGB lighting, and a flexible voice microphone.',
+    brand: 'Immersion', category: 'Gaming Audio', price: 8990, countInStock: 23,
+  },
+  {
+    name: 'Xbox One Wireless Controller - Black',
+    image: image('1602323460270-4caefc261548'),
+    description: 'A genuine Xbox One wireless controller in black with textured thumbsticks, responsive triggers, and the familiar Xbox button layout.',
+    brand: 'Microsoft', category: 'Controllers', price: 7990, countInStock: 18,
+  },
+  {
+    name: 'Sony DualShock 4 Wireless Controller - Jet Black',
+    image: image('1589981826504-090700e3ff1a'),
+    description: 'A genuine DualShock 4 wireless controller with dual analog sticks, integrated touchpad, motion sensors, light bar, and headset connection.',
+    brand: 'Sony', category: 'Controllers', price: 6990, countInStock: 16,
+  },
+  {
+    name: 'Nintendo Switch Pro Controller - Black',
+    image: image('1540137408293-b511c15c9c7b'),
+    description: 'A genuine Nintendo Switch Pro Controller with comfortable full-size grips, motion controls, HD rumble, and wireless connectivity.',
+    brand: 'Nintendo', category: 'Controllers', price: 8490, countInStock: 14,
+  },
+  {
+    name: 'Blue Snowball iCE USB Microphone with Boom Arm',
+    image: image('1617977469931-5fc2a0cd2d41'),
+    description: 'A genuine Blue Snowball iCE USB condenser microphone paired with an adjustable boom arm for game chat, streaming, and voice recording.',
+    brand: 'Blue Microphones', category: 'Streaming Gear', price: 8990, countInStock: 17,
+  },
+  {
+    name: 'PrismEdge RGB Extended Gaming Mouse Pad',
+    image: image('1636036826842-39d276c8c5aa'),
+    description: 'An extended cloth gaming surface with a smooth tracking finish, non-slip rubber base, stitched edges, and USB-powered RGB border.',
+    brand: 'PrismEdge', category: 'Gaming Accessories', price: 2490, countInStock: 40,
+  },
+  {
+    name: 'Nintendo Switch Lite - Yellow',
+    image: image('1618556679398-486ba2cf2e89'),
+    description: 'A genuine compact Nintendo Switch Lite in yellow with integrated controls, a 5.5-inch display, and support for handheld-compatible games.',
+    brand: 'Nintendo', category: 'Gaming Consoles', price: 28990, countInStock: 11,
+  },
+  {
+    name: 'ASUS ROG Ally Handheld Gaming Console',
+    image: image('1768560896018-186bbf942eda'),
+    description: 'A genuine Windows handheld gaming console with a vivid display, ergonomic controls, RGB-accented sticks, and access to multiple PC game libraries.',
+    brand: 'ASUS', category: 'Gaming Consoles', price: 79990, countInStock: 6,
+  },
+  {
+    name: 'Valve Steam Deck OLED',
+    image: image('1718966324551-28b1f4385eac'),
+    description: 'A genuine Steam Deck OLED handheld with an HDR OLED display, improved battery life, responsive controls, and access to the Steam library.',
+    brand: 'Valve', category: 'Gaming Consoles', price: 89990, countInStock: 5,
+  },
+  {
+    name: 'Sony PlayStation 5 Console',
+    image: image('1622297845775-5ff3fef71d13'),
+    description: 'A genuine PlayStation 5 console with ultra-fast SSD storage, immersive 3D audio, ray-traced graphics, and a DualSense wireless controller.',
+    brand: 'Sony', category: 'Gaming Consoles', price: 74990, countInStock: 8,
+  },
+  {
+    name: 'Vortex Ergonomic Gaming Chair',
+    image: image('1770195483917-b3bb444b7a29'),
+    description: 'A racing-style ergonomic gaming chair with a high back, padded headrest, lumbar support, adjustable armrests, and reclining backrest.',
+    brand: 'Vortex', category: 'Gaming Furniture', price: 18990, countInStock: 10,
+  },
 ];
 
 module.exports = newProducts;
