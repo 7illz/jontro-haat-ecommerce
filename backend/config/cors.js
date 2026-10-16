@@ -2,7 +2,9 @@ const { allowedOrigins } = require('./env');
 
 const origin = (requestOrigin, callback) => {
   if (!requestOrigin || allowedOrigins.includes(requestOrigin)) return callback(null, true);
-  return callback(new Error('Origin not allowed by CORS'));
+  const error = new Error('Origin not allowed by CORS');
+  error.statusCode = 403;
+  return callback(error);
 };
 
 module.exports = {

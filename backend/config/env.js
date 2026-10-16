@@ -23,10 +23,17 @@ if (isTest && !/(^|[_-])test($|[_-])/i.test(databaseName)) {
   throw new Error(`NODE_ENV=test requires a test-named MongoDB database, received: ${databaseName || 'unknown'}`);
 }
 
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+const normalizeOrigin = (origin) => origin.trim().replace(/\/+$/, '');
+const defaultOrigins = [
+  'http://localhost:5173',
+  'https://nexus-store-ecommerce.vercel.app',
+  'https://jontro-haat-ecommerce.vercel.app',
+];
+const configuredOrigins = (process.env.FRONTEND_URL || '')
   .split(',')
-  .map((origin) => origin.trim())
+  .map(normalizeOrigin)
   .filter(Boolean);
+const allowedOrigins = [...new Set([...defaultOrigins, ...configuredOrigins])];
 
 module.exports = {
   port: numberFromEnv('PORT', 5000, 1),
