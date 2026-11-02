@@ -1,11 +1,12 @@
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export class ApiError extends Error {
-  constructor(message, status, details) {
+  constructor(message, status, details, code) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.details = details;
+    this.code = code;
   }
 }
 
@@ -21,6 +22,20 @@ export const apiRequest = async (path, { method = 'GET', body, auth = false, hea
 
   const response = await fetch(`${API_URL}${path}`, { method, headers: requestHeaders, body: requestBody });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new ApiError(data.message || `Request failed with status ${response.status}`, response.status, data.errors);
+  if (!response.ok) {
+    if (auth && response.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.dispatchEvent(new CustomEvent('auth:invalid', {
+        detail: { message: data.message || 'Your session is no longer valid. Please sign in again.' },
+      }));
+    }
+    throw new ApiError(
+      data.message || `Request failed with status ${response.status}`,
+      response.status,
+      data.errors,
+      data.code,
+    );
+  }
   return data;
 };

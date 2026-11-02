@@ -35,6 +35,24 @@ export const StoreProvider = ({ children }) => {
   const [pricingError, setPricingError] = useState('');
 
   useEffect(() => {
+    let toastTimer;
+    const handleInvalidAuth = (event) => {
+      setUser(null);
+      setProducts([]);
+      setOrders([]);
+      setToast(event.detail?.message || 'Your session is no longer valid. Please sign in again.');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => setToast(null), 5000);
+    };
+
+    window.addEventListener('auth:invalid', handleInvalidAuth);
+    return () => {
+      window.removeEventListener('auth:invalid', handleInvalidAuth);
+      clearTimeout(toastTimer);
+    };
+  }, []);
+
+  useEffect(() => {
     getPricingConfig()
       .then(setPricing)
       .catch(() => setPricingError('Checkout pricing is temporarily unavailable.'));

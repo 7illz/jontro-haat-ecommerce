@@ -177,6 +177,7 @@ export default function ProfilePage() {
         setError(null);
       } catch (err) {
         console.error("Profile Fetch Error:", err);
+        if (err.status === 401) return;
         setError(err.message);
       } finally {
         setLoading(false);
