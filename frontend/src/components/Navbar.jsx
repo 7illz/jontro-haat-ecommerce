@@ -22,7 +22,8 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 glass-strong border-b border-white/5">
+      <nav className="halloween-nav sticky top-0 z-50 glass-strong border-b overflow-hidden">
+        <div className="cobweb" aria-hidden="true" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             
@@ -95,7 +96,7 @@ export default function Navbar() {
               <Link to="/cart" className="relative text-gray-400 hover:text-brand-400 transition-colors duration-300 group">
                 <ShoppingCart className="h-6 w-6" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold leading-none text-white bg-gradient-to-r from-brand-600 to-accent-500 rounded-full shadow-lg shadow-brand-500/30">
+                  <span className="absolute -top-2 -right-2.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold leading-none text-white bg-gradient-to-r from-brand-600 to-haunt-600 rounded-full shadow-lg shadow-brand-500/30">
                     {cartCount}
                   </span>
                 )}
@@ -116,7 +117,7 @@ export default function Navbar() {
               <Link to="/cart" className="relative text-gray-400 hover:text-brand-400 transition-colors">
                 <ShoppingCart className="h-5 w-5" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 inline-flex items-center justify-center w-4 h-4 text-[9px] font-bold leading-none text-white bg-gradient-to-r from-brand-600 to-accent-500 rounded-full">
+                  <span className="absolute -top-1.5 -right-2 inline-flex items-center justify-center w-4 h-4 text-[9px] font-bold leading-none text-white bg-gradient-to-r from-brand-600 to-haunt-600 rounded-full">
                     {cartCount}
                   </span>
                 )}
@@ -161,7 +162,7 @@ export default function Navbar() {
           
           {/* Slide-in Drawer */}
           <div 
-            className="absolute right-0 top-0 h-full w-72 bg-gray-900/95 backdrop-blur-xl border-l border-white/10 shadow-2xl animate-slide-in-right p-6 pt-20"
+            className="absolute right-0 top-0 h-full w-72 bg-gray-900/95 backdrop-blur-xl border-l border-brand-400/20 shadow-2xl shadow-haunt-900/20 animate-slide-in-right p-6 pt-20"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="space-y-2">

@@ -213,7 +213,7 @@ export default function ProfilePage() {
       <div className="glass p-8 rounded-3xl mb-10 flex flex-col md:flex-row items-center md:items-start gap-6 border border-brand-500/20 relative overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
         
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-brand-600 to-accent-500 flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.3)] z-10 border-4 border-gray-950 shrink-0">
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-brand-600 to-haunt-600 flex items-center justify-center shadow-[0_0_30px_rgba(249,115,22,0.25)] z-10 border-4 border-gray-950 shrink-0">
           <User className="w-10 h-10 text-white" />
         </div>
         <div className="text-center md:text-left z-10 pt-2">

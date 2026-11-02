@@ -187,6 +187,17 @@ JontroHaat includes database-backed API integration tests using Vitest/Supertest
 
 Playwright is installed as a dev dependency at the project root (`@playwright/test`). Backend test dependencies live in `backend/package.json`. Playwright configuration lives in [`playwright.config.ts`](playwright.config.ts), and backend coverage settings live in [`backend/vitest.config.js`](backend/vitest.config.js).
 
+### How the tests are implemented
+
+The test strategy has two layers:
+
+1. **Backend integration tests** import the Express app directly and send HTTP requests with Supertest. They exercise real routes, middleware, services, and MongoDB persistence without opening a network port. `backend/tests/setup.js` connects before the suite and refuses to use a database whose name does not contain `test`. `beforeEach()` reseeds deterministic users, products, coupons, and inventory so every case starts from the same state.
+2. **Browser end-to-end tests** use Playwright against the real Vite frontend and Express backend. Playwright starts both servers from `playwright.config.ts`. Tests use accessible locators, real login/API setup where authentication is part of the behavior, and request interception for checkout cases that should not create a real order.
+
+The backend suite covers authentication, validation, authorization, public pricing, coupons, server-owned price calculation, transactional rollback, concurrent overselling protection, inventory updates, and per-user order isolation. The 38 Playwright cases cover login/logout and route guards, homepage catalog behavior, cart operations, checkout states, and owner-dashboard access across Chromium, Firefox, and WebKit.
+
+Coverage is collected with V8 for backend service and middleware files. The Vitest configuration enforces minimum thresholds of 45% for statements, functions, and lines and 35% for branches. A threshold failure fails the test command and therefore fails CI.
+
 ### Prerequisites
 
 Provide `MONGO_URI_TEST` pointing to a replica-set database whose name contains `test`. The fixture command refuses any other database. `npm run seed:test` resets that database and creates deterministic users, products, and coupon states. Credentials can be overridden with `TEST_USER_EMAIL`, `TEST_USER_PASSWORD`, `TEST_ADMIN_EMAIL`, and `TEST_ADMIN_PASSWORD`; test-only defaults are documented in `backend/.env.example`.
@@ -341,24 +352,48 @@ The Playwright configuration is defined in [`playwright.config.ts`](playwright.c
 5. Use `page.route()` to mock API endpoints when you want to avoid side effects (e.g., creating real orders).
 6. Target elements using accessible selectors: `getByRole()`, `getByLabel()`, `getByText()`, and `getByPlaceholder()`.
 
-### CI integration
+## CI/CD implementation
 
-To run the test suite in a CI pipeline (e.g., GitHub Actions):
+### Continuous integration: GitHub Actions
 
-```yaml
-- name: Install Playwright browsers
-  run: npx playwright install --with-deps
+CI is implemented in [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml). It runs for every push and pull request targeting `main` or `master` and performs this sequence on an Ubuntu runner:
 
-- name: Run Playwright tests
-  run: npx playwright test
-  env:
-    CI: true
+1. Check out the commit and install the current Node.js LTS release.
+2. Start MongoDB 6 as the `rs0` replica set, which is required by checkout transactions.
+3. Run `npm ci` independently at the repository root, in `backend/`, and in `frontend/` so all three lockfiles are honored.
+4. Install Chromium, Firefox, WebKit, and their operating-system dependencies with `npx playwright install --with-deps`.
+5. Seed the isolated `jontro_haat_test` database.
+6. Run backend Vitest/Supertest integration tests with coverage thresholds.
+7. Reseed the database because backend integration tests intentionally mutate their fixtures.
+8. Run all Playwright projects with `CI=true`.
+9. Upload the HTML Playwright report for 30 days, even when the job fails.
+
+In CI mode, Playwright uses one worker, retries failures twice, records a trace on the first retry, and rejects committed `test.only` calls. Any failed setup step, backend test, coverage threshold, or browser test makes the workflow fail.
+
+### Continuous delivery: Vercel and Render
+
+The production frontend is served by Vercel and the API is served by Render:
+
+```text
+Browser -> Vercel frontend -> VITE_API_URL -> Render API -> MongoDB
 ```
 
-When `CI=true`, Playwright automatically:
-- Uses **1 worker** (no parallelism) for deterministic results.
-- Retries failed tests **2 times**.
-- Fails the build if any `test.only` calls are left in the source.
+Vercel builds from `frontend/` and injects the public backend address through `VITE_API_URL`. Render starts the backend with `npm start` from `backend/`; its environment contains `MONGO_URI`, `JWT_SECRET`, allowed frontend origins, and any optional mail/media credentials.
+
+Deployment itself is configured in the Vercel and Render project dashboards. This repository does **not** contain a GitHub Actions deployment job or a Render Blueprint, so GitHub Actions currently provides CI only; the hosts perform CD when their connected branch is deployed. Keep production secrets in the hosting dashboards, never in GitHub-tracked `.env` files.
+
+### Required CI/CD checks
+
+Before merging or deploying, run:
+
+```bash
+npm run lint
+npm run build
+npm run test:backend
+npm run test:e2e
+```
+
+The current GitHub workflow automates the two test commands. Add `npm run lint` and `npm run build` as workflow steps, or enforce them through protected-branch checks, if you want lint and production compilation to be mandatory merge gates as well.
 
 ## API overview
 

@@ -67,7 +67,7 @@ export default function Chatbot() {
           className="relative group"
         >
           <div className="absolute inset-0 bg-brand-500 rounded-full glow-ring" />
-          <div className="relative bg-gradient-to-r from-brand-600 to-accent-500 p-4 rounded-full shadow-lg shadow-brand-500/30 text-white hover:shadow-brand-500/50 hover:scale-105 transition-all duration-300">
+          <div className="relative bg-gradient-to-r from-brand-600 to-haunt-600 p-4 rounded-full shadow-lg shadow-brand-500/30 text-white hover:shadow-brand-500/50 hover:scale-105 transition-all duration-300 border border-brand-300/30">
             <MessageSquare className="h-6 w-6" />
           </div>
         </button>
@@ -77,9 +77,9 @@ export default function Chatbot() {
       {isOpen && (
         <div className="glass-strong w-80 sm:w-96 rounded-2xl shadow-2xl shadow-brand-900/20 overflow-hidden flex flex-col h-[500px] animate-slide-up">
           {/* Header */}
-          <div className="bg-gradient-to-r from-brand-700 to-accent-600 p-4 text-white flex justify-between items-center">
+          <div className="bg-gradient-to-r from-brand-700 to-haunt-700 p-4 text-white flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-accent-400 animate-pulse" />
               <span className="font-bold">Live Support</span>
             </div>
             <button onClick={() => setIsOpen(false)} className="text-white/60 hover:text-white transition-colors rounded-lg hover:bg-white/10 p-1">

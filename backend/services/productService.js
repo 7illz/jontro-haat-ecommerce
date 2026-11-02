@@ -14,7 +14,9 @@ const listProducts = async ({ keyword, category, sort }) => {
   };
   const sortQuery = sort === 'lowest' ? { price: 1 } : sort === 'highest' ? { price: -1 } : { createdAt: -1 };
   const [products, categories] = await Promise.all([
-    Product.find(query).sort(sortQuery),
+    // Catalog cards need aggregate rating fields, not every review body. Keep
+    // reviews on the product-detail endpoint and return lightweight plain data.
+    Product.find(query).select('-reviews').sort(sortQuery).lean(),
     Product.distinct('category'),
   ]);
   return { products, categories };

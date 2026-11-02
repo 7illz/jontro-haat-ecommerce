@@ -64,10 +64,12 @@ export default function HomePage() {
       }
     };
 
-    // Use a small timeout (debounce) so we don't spam the backend while the user is typing
+    // Load the initial catalog immediately. Debounce only active search input so
+    // the first visit does not pay an unnecessary fixed 300 ms delay.
+    const delay = searchQuery ? 300 : 0;
     const delayDebounceFn = setTimeout(() => {
       fetchProducts();
-    }, 300);
+    }, delay);
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery, selectedCategory, sortOrder]);
@@ -75,17 +77,22 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero Section with Animated Gradient Mesh */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 shadow-2xl shadow-brand-900/20">
+      <div className="halloween-hero relative rounded-3xl overflow-hidden mb-12 shadow-2xl shadow-brand-900/20">
         <div className="gradient-mesh relative px-8 py-16 sm:px-16 sm:py-24 lg:py-20 flex flex-col lg:flex-row items-center justify-between gap-12">
+          <div className="hero-fog" aria-hidden="true" />
+          <span className="halloween-bat top-[18%] left-[48%]" aria-hidden="true" />
+          <span className="halloween-bat top-[31%] left-[57%] scale-75" style={{ animationDelay: '1.7s' }} aria-hidden="true" />
+          <span className="halloween-pumpkin bottom-5 left-7 scale-75" aria-hidden="true" />
+          <span className="halloween-pumpkin bottom-7 right-[46%] scale-50 opacity-50" aria-hidden="true" />
           {/* Floating particle decorations */}
           <div className="absolute top-10 right-10 w-32 h-32 bg-brand-500/10 rounded-full blur-3xl animate-float" />
           <div className="absolute bottom-10 left-1/3 w-40 h-40 bg-accent-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
           <div className="absolute top-1/2 right-1/4 w-24 h-24 bg-brand-400/10 rounded-full blur-2xl animate-float" style={{ animationDelay: '4s' }} />
           
           <div className="relative z-10 lg:w-1/2">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/5 border border-white/10 text-brand-300 text-sm font-medium mb-6 backdrop-blur-sm">
-              <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2 animate-pulse" />
-              New Arrivals Available
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-brand-500/10 border border-brand-400/30 text-brand-200 text-sm font-medium mb-6 backdrop-blur-sm shadow-[0_0_22px_rgba(249,115,22,0.12)]">
+              <div className="w-1.5 h-1.5 bg-accent-400 rounded-full mr-2 animate-pulse" />
+              Midnight Market · New Arrivals
             </div>
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl mb-4">
               <span className="gradient-text">Next-Gen Tech</span>
@@ -195,7 +202,7 @@ export default function HomePage() {
           {products.map((product, index) => (
             <div 
               key={product._id} 
-              className="glass rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-brand-900/10 hover:-translate-y-1 transition-all duration-300 group fade-in-up"
+              className="product-card glass rounded-2xl overflow-hidden hover:-translate-y-1 transition-all duration-300 group fade-in-up"
               style={{ animationDelay: `${index * 0.06}s` }}
             >
               <Link to={`/product/${product._id}`}>
@@ -222,7 +229,7 @@ export default function HomePage() {
                   <button 
                     onClick={() => addToCart(product)}
                     disabled={product.countInStock === 0}
-                    className={`p-2.5 rounded-xl transition-all duration-300 ${product.countInStock === 0 ? 'bg-white/5 text-gray-600 cursor-not-allowed' : 'bg-brand-600/20 text-brand-400 hover:bg-gradient-to-r hover:from-brand-600 hover:to-accent-500 hover:text-white hover:shadow-lg hover:shadow-brand-500/20'}`}
+                    className={`p-2.5 rounded-xl transition-all duration-300 ${product.countInStock === 0 ? 'bg-white/5 text-gray-600 cursor-not-allowed' : 'bg-brand-600/20 text-brand-300 border border-brand-400/20 hover:bg-gradient-to-r hover:from-brand-600 hover:to-haunt-600 hover:text-white hover:shadow-lg hover:shadow-brand-500/20'}`}
                   >
                     <ShoppingCart className="h-5 w-5" />
                   </button>

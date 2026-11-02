@@ -105,7 +105,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-[70vh] px-4">
       <div className="w-full max-w-md animate-slide-up">
         {/* Gradient accent top line */}
-        <div className="h-1 w-full bg-gradient-to-r from-brand-600 via-accent-500 to-brand-600 rounded-t-2xl" />
+        <div className="h-1 w-full bg-gradient-to-r from-brand-600 via-haunt-500 to-brand-600 rounded-t-2xl shadow-[0_0_22px_rgba(249,115,22,0.3)]" />
         
         <div className="glass-strong rounded-b-2xl rounded-t-none overflow-hidden">
           <div className="p-8">

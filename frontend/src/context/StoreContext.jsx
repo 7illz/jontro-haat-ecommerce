@@ -59,6 +59,12 @@ export const StoreProvider = ({ children }) => {
   }, [appliedCoupon]);
 
   useEffect(() => {
+    // The storefront owns its filtered catalog request. Only load the second,
+    // admin-facing copy when an owner actually needs dashboard inventory data.
+    if (user?.role !== 'owner') {
+      return;
+    }
+
     listProducts()
       .then((data) => {
         const safeProducts = Array.isArray(data) ? data : (data?.products || []);
@@ -68,7 +74,7 @@ export const StoreProvider = ({ children }) => {
         console.error("Database connection error (Products):", err);
         setProducts([]); 
       });
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     // Only fetch ALL orders if the user is logged in as an owner (admin)
@@ -104,6 +110,7 @@ export const StoreProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
+    setProducts([]);
     setOrders([]);
     showToast("Logged out successfully");
   };

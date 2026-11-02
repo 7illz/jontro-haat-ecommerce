@@ -28,8 +28,8 @@ const ToastNotification = () => {
   if (!toast) return null;
   return (
     <div className="fixed top-6 right-6 z-[100] animate-slide-up">
-      <div className="glass-strong px-6 py-3 rounded-xl shadow-2xl text-sm font-medium text-gray-100 flex items-center gap-2">
-        <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+      <div className="glass-strong px-6 py-3 rounded-xl shadow-2xl shadow-brand-900/20 text-sm font-medium text-gray-100 flex items-center gap-2 border-brand-400/30">
+        <div className="w-2 h-2 rounded-full bg-accent-400 animate-pulse shadow-[0_0_10px_rgba(163,230,53,0.7)]" />
         {toast}
       </div>
     </div>
@@ -39,7 +39,7 @@ const ToastNotification = () => {
 // 1. Create a layout shell for the customer-facing pages
 const StorefrontLayout = () => {
   return (
-    <div className="min-h-screen bg-gray-950 font-sans text-gray-100 relative">
+    <div className="storefront-shell min-h-screen bg-gray-950 font-sans text-gray-100 relative overflow-x-clip">
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Outlet />

@@ -42,7 +42,7 @@ export default function DashboardHome() {
     { name: 'Delivered', value: deliveredCount },
     { name: 'Pending', value: pendingCount },
   ];
-  const COLORS = ['#10B981', '#F59E0B']; // Emerald and Amber
+  const COLORS = ['#a3e635', '#f97316']; // Slime green and pumpkin orange
 
   // Products by Category (Aggregating from actual products)
   const categoryCounts = safeProducts.reduce((acc, product) => {
@@ -147,19 +147,19 @@ export default function DashboardHome() {
               <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#a3e635" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#a3e635" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
-                <XAxis dataKey="name" stroke="#9CA3AF" tick={{ fill: '#9CA3AF', fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis stroke="#9CA3AF" tick={{ fill: '#9CA3AF', fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(val) => `৳${(val/1000).toFixed(0)}k`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#402c50" vertical={false} />
+                <XAxis dataKey="name" stroke="#aa91b9" tick={{ fill: '#aa91b9', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis stroke="#aa91b9" tick={{ fill: '#aa91b9', fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(val) => `৳${(val/1000).toFixed(0)}k`} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '0.5rem', color: '#fff' }}
-                  itemStyle={{ color: '#10B981' }}
+                  itemStyle={{ color: '#a3e635' }}
                   formatter={(value) => [`৳${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'Revenue']}
                 />
-                <Area type="monotone" dataKey="revenue" stroke="#10B981" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                <Area type="monotone" dataKey="revenue" stroke="#a3e635" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -217,14 +217,14 @@ export default function DashboardHome() {
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={categoryData} layout="vertical" margin={{ top: 0, right: 10, left: 30, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" horizontal={true} vertical={false} />
-                <XAxis type="number" stroke="#9CA3AF" tick={{ fill: '#9CA3AF', fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis dataKey="name" type="category" stroke="#9CA3AF" tick={{ fill: '#9CA3AF', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#402c50" horizontal={true} vertical={false} />
+                <XAxis type="number" stroke="#aa91b9" tick={{ fill: '#aa91b9', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis dataKey="name" type="category" stroke="#aa91b9" tick={{ fill: '#aa91b9', fontSize: 12 }} axisLine={false} tickLine={false} />
                 <Tooltip 
                   cursor={{ fill: '#374151', opacity: 0.4 }}
                   contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '0.5rem', color: '#fff' }}
                 />
-                <Bar dataKey="count" fill="#3B82F6" radius={[0, 4, 4, 0]} barSize={20} />
+                <Bar dataKey="count" fill="#8b5cf6" radius={[0, 4, 4, 0]} barSize={20} />
               </BarChart>
             </ResponsiveContainer>
           </div>
